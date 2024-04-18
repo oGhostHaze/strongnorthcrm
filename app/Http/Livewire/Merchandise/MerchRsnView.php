@@ -98,4 +98,10 @@ class MerchRsnView extends Component
 
         $this->alert('success', 'RSN-' . $this->rsn->id . ' approved! Product inventory updated.');
     }
+
+    public function print_this()
+    {
+        $this->print_val = true;
+        $this->dispatchBrowserEvent('print_div');
+    }
 }
