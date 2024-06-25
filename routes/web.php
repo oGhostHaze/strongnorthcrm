@@ -24,6 +24,7 @@ use App\Http\Livewire\Merchandise\MerchRsnView;
 use App\Http\Livewire\Merchandise\MerchStockIn;
 use App\Http\Livewire\Orders\Returns\Listreturn;
 use App\Http\Livewire\Orders\Returns\Viewreturn;
+use App\Http\Livewire\Products\StockinReportFiltered;
 use App\Http\Livewire\References\MeasurementUnit;
 use App\Http\Livewire\Servicing\SrList;
 use App\Http\Livewire\Servicing\SrView;
@@ -59,6 +60,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/product/sets/view/{set}', Composition::class)->name('set.view');
 
     Route::get('/product/stockin', StockinList::class)->name('product.stockin');
+    Route::get('/product/stockin/report', StockinReportFiltered::class)->name('product.stockin.filtered');
 
     Route::get('/order/agreements', Agreements::class)->name('order.agreements');
     Route::get('/order/agreements/cooking-shows', PendingOrders::class)->name('order.agreements.cs');
