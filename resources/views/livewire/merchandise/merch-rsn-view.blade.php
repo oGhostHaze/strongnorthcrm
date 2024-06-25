@@ -7,7 +7,7 @@
                         <span>Return Slip for Order #{{ $rsn->oa_no }}</span>
                         <div class="d-flex">
                             @if ($rsn->status == 'For Approval')
-                                @can('manage-orders')
+                                @can('manage-merchandise-orders')
                                     <a href="" class="btn btn-sm btn-primary ms-2" data-bs-toggle="modal"
                                         data-bs-target="#returnItemModal">Return Item</a>
                                 @endcan
