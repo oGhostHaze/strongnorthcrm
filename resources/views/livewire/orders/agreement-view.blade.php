@@ -242,7 +242,7 @@
                                                     <div class="text-end">
                                                         <span>{{ $dr->date }}</span><br>
                                                         <span><strong>Total Released:
-                                                            </strong>{{ (int) $dr->items()->where('status', 'Released')->sum('item_qty') + (int) $dr->gifts()->where('status', 'Released')->sum('item_qty') }}</span><br>
+                                                            </strong>{{ (int) $dr->items()->where('status', 'Released')->sum('item_qty') +(int) $dr->gifts()->where('status', 'Released')->sum('item_qty') }}</span><br>
                                                     </div>
                                                 </div>
                                             </td>
