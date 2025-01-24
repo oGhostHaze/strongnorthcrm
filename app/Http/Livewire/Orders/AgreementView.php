@@ -33,6 +33,7 @@ class AgreementView extends Component
     public $delivery_client, $delivery_address, $delivery_contact, $delivery_consultant, $delivery_assoc, $delivery_presenter, $delivery_tb, $delivery_distributor, $delivery_code;
     public $price_difference, $price_override;
     public $mop, $date_of_payment, $amount;
+    public $rsn_dr;
 
     public function render()
     {
@@ -368,9 +369,11 @@ class AgreementView extends Component
 
     public function new_rsn()
     {
+        $this->validate(['rsn_dr' => ['required', 'string', 'min:10']]);
         $rsn = OrderReturnInfo::create([
             'oa_id' => $this->oa->oa_id,
             'oa_no' => $this->oa->oa_number,
+            'dr_no' => $this->rsn_dr,
             'received_by' => Auth::user()->id,
             'status' => 'For Approval',
         ]);

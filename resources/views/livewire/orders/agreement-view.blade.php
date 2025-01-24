@@ -1,4 +1,7 @@
 <div class="container-fluid">
+    @php
+        $col = 7;
+    @endphp
     <div class="row">
         <div class="col-lg-8">
             <div class="card">
@@ -67,19 +70,16 @@
                                     <th class="text-end">Released</th>
                                     <th class="text-end">Returned</th>
                                     <th class="text-end">Total</th>
-                                    {{-- <th>Status</th> --}}
+
                                     @can('manage-orders')
-                                        <th></th>
+                                        @if (!$oa->drs()->count())
+                                            <th></th>
+                                        @endif
                                     @endcan
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($oa->items()->get() as $order)
-                                    {{-- @php
-                                    if($order->tblset_id){
-                                        $oa->items()->sum('item_qty')
-                                    }
-                                @endphp --}}
                                     <tr {!! $order->tblset_id ? 'class="table-light"' : '' !!}>
                                         <td>{!! $order->item->tblset_id
                                             ? '<span class="fw-bold">' . $order->item->product_description . '</span> Composed of:'
@@ -89,22 +89,24 @@
                                         <td class="text-end">{{ $order->released }}</td>
                                         <td class="text-end">{{ $order->returned }}</td>
                                         <td class="text-end">{{ number_format($order->item_total, 2) }}</td>
-                                        {{-- <td>{{$order->status}}</td> --}}
                                         @can('manage-orders')
-                                            <td width="5%">
-                                                {{-- @if ($order->released == 0 and $order->returned == 0 and !$order->tblset_id) --}}
-                                                @if (!$oa->drs()->count())
+                                            @if (!$oa->drs()->count())
+                                                <td width="5%">
                                                     <a href="#" class="btn btn-sm btn-danger"
                                                         onclick="delete_item('{{ $order->item_id }}', '{{ $order->item->product_description }}')">Remove</a>
-                                                    {{-- @elseif($order->released != 0 AND  !$order->tblset_id)
-                                                <a href="#" class="btn btn-sm btn-warning" onclick="return_item('{{$order->product_id}}', '{{$order->item_id}}', '{{$order->item->product_description}}', '{{$order->item_price}}', '{{$order->released}}')">Return</a> --}}
-                                                @endif
-                                            </td>
+                                                </td>
+                                            @endif
                                         @endcan
                                     </tr>
                                 @empty
+                                    @if ($oa->drs()->count())
+                                        @php
+                                            $col = 6;
+                                        @endphp
+                                    @endif
                                     <tr>
-                                        <td class="text-center text-muted" colspan="7">No items found</td>
+                                        <td class="text-center text-muted" colspan="{{ $col }}">No items found
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -119,9 +121,11 @@
                                     <th class="text-end">Released</th>
                                     <th class="text-end">Returned</th>
                                     <th class="text-end">Total</th>
-                                    {{-- <th>Status</th> --}}
+
                                     @can('manage-orders')
-                                        <th></th>
+                                        @if (!$oa->drs()->count())
+                                            <th></th>
+                                        @endif
                                     @endcan
                                 </tr>
                             </thead>
@@ -135,22 +139,27 @@
                                         <td class="text-end">{{ $order->released }}</td>
                                         <td class="text-end">{{ $order->returned }}</td>
                                         <td class="text-end">{{ number_format(0, 2) }}</td>
-                                        {{-- <td>{{$order->status}}</td> --}}
                                         @can('manage-orders')
-                                            <td width="5%">
-                                                {{-- @if ($order->released == 0 and $order->returned == 0) --}}
-                                                @if (!$oa->drs()->count())
+                                            @if (!$oa->drs()->count())
+                                                @php
+                                                    $col = 8;
+                                                @endphp
+                                                <td width="5%">
                                                     <a href="#" class="btn btn-sm btn-danger"
                                                         onclick="delete_gift('{{ $order->gift_id }}', '{{ $order->gift->product_description }}')">Remove</a>
-                                                    {{-- @elseif($order->released != 0)
-                                                <a href="#" class="btn btn-sm btn-warning" onclick="return_gift('{{$order->product_id}}', '{{$order->gift_id}}', '{{$order->gift->product_description}}', '{{$order->item_price}}', '{{$order->released}}')">Return</a> --}}
-                                                @endif
-                                            </td>
+                                                </td>
+                                            @endif
                                         @endcan
                                     </tr>
                                 @empty
+                                    @if ($oa->drs()->count())
+                                        @php
+                                            $col = 7;
+                                        @endphp
+                                    @endif
                                     <tr>
-                                        <td class="text-center text-muted" colspan="8">No gifts found</td>
+                                        <td class="text-center text-muted" colspan="{{ $col }}">No gifts found
+                                        </td>
                                     </tr>
                                 @endforelse
                                 <tr class='table-light'>
@@ -242,7 +251,7 @@
                                                     <div class="text-end">
                                                         <span>{{ $dr->date }}</span><br>
                                                         <span><strong>Total Released:
-                                                            </strong>{{ (int) $dr->items()->where('status', 'Released')->sum('item_qty') +(int) $dr->gifts()->where('status', 'Released')->sum('item_qty') }}</span><br>
+                                                            </strong>{{ (int) $dr->items()->where('status', 'Released')->sum('item_qty') + (int) $dr->gifts()->where('status', 'Released')->sum('item_qty') }}</span><br>
                                                     </div>
                                                 </div>
                                             </td>
@@ -366,8 +375,8 @@
                                     <tr>
                                         <th>
                                             Return Slips
-                                            <button class="btn btn-sm btn-primary float-end"
-                                                wire:click="new_rsn()">New RSN</button>
+                                            <button class="btn btn-sm btn-primary float-end" data-bs-toggle="modal"
+                                                data-bs-target="#newRsnModal">New RSN</button>
                                         </th>
                                     </tr>
                                 </thead>
@@ -378,9 +387,11 @@
                                                 <div class="d-flex justify-content-between">
                                                     <div>
                                                         <span
-                                                            class="fw-bold text-primary">RSN-{{ $return->id }}</span><br>
+                                                            class="fw-bold text-primary">RSN-{{ $return->id }}</span>
                                                         <span
-                                                            class="badge text-small {{ $return->status == 'Approved' ? 'bg-success' : 'bg-light' }}">{{ $return->status }}</span>
+                                                            class="badge text-black-50">{{ $return->dr_no }}</span><br>
+                                                        <span
+                                                            class="badge text-small {{ $return->status == 'Approved' ? 'bg-success' : 'bg-primary' }}">{{ $return->status }}</span>
                                                     </div>
                                                     <div class="text-end">
                                                         <span>{{ $return->created_at }}</span><br>
@@ -569,6 +580,40 @@
         </div>
     </div>
     {{-- Price Difference --}}
+
+    {{-- New RSN --}}
+    <div class="modal fade" id="newRsnModal" tabindex="-1" aria-labelledby="newRsnModal" aria-hidden="true"
+        wire:ignore.self>
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newRsnModal">New RSN</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3" wire:ignore>
+                        <label for="rsn_dr" class="form-label">DR</label><br>
+                        <select class="form-control" id="rsn_dr" wire:model.defer="rsn_dr" style="width: 100%;">
+                            <option value=""></option>
+                            @foreach ($oa->drs()->orderByDesc('dr_count')->get() as $dr)
+                                <option value="{{ $dr->transno }}">{{ $dr->transno }} [{{ $dr->code }}] Total
+                                    Released:
+                                    {{ (int) $dr->items()->where('status', 'Released')->sum('item_qty') + (int) $dr->gifts()->where('status', 'Released')->sum('item_qty') }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('rsn_dr')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" wire:click="new_rsn()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- New RSN --}}
 
     {{-- New Payment --}}
     <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModal" aria-hidden="true"

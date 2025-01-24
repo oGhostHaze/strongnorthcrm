@@ -10,11 +10,12 @@ class OrderReturnInfo extends Model
     use HasFactory;
     protected $table = 'order_return_infos';
     protected $fillable = [
-                            'oa_id',
-                            'oa_no',
-                            'received_by',
-                            'status',
-                        ];
+        'oa_id',
+        'oa_no',
+        'dr_no',
+        'received_by',
+        'status',
+    ];
 
     public function return_items()
     {
@@ -24,5 +25,10 @@ class OrderReturnInfo extends Model
     public function oa()
     {
         return $this->belongsTo(Order::class, 'oa_id', 'oa_id');
+    }
+
+    public function dr()
+    {
+        return $this->belongsTo(Delivery::class, 'dr_no', 'transno');
     }
 }
