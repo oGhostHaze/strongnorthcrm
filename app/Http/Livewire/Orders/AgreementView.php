@@ -40,13 +40,14 @@ class AgreementView extends Component
     {
         $products = Product::all();
         $payments = OrderPaymentHistory::where('oa_id', $this->oa->oa_id)->latest('date_of_payment')->get();
+        $initial = OrderPaymentHistory::where('oa_id', $this->oa->oa_id)->orderBy('date_of_payment')->first();
         $total_paid = OrderPaymentHistory::where('oa_id', $this->oa->oa_id)->sum('amount');
         $mops = ModeOfPayment::all();
 
         return view('livewire.orders.agreement-view', [
             'products' => $products,
             'payments' => $payments,
-            'payments' => $payments,
+            'initial' => $initial,
             'total_paid' => $total_paid,
             'mops' => $mops,
         ]);

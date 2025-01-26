@@ -1,4 +1,11 @@
 <div class="container-fluid">
+    <style>
+        @media print {
+            #print_div {
+                font-size: 6px; /* Adjust the font size as needed */
+            }
+        }
+        </style>
     @php
         $col = 7;
     @endphp
@@ -27,7 +34,7 @@
                     </div>
 
                 </div>
-                <div class="card-body" id='print_div'>
+                <div class="card-body" style="" id='print_div'>
                     <!-- Grid column -->
                     <div class="row">
                         <div class="col-sm-12 text-center">
@@ -179,7 +186,7 @@
                                 <tr class='table-light'>
                                     <td class="text-end" colspan='6'><strong>TOTAL:</strong></td>
                                     <td class="text-end" colspan="2"><strong>&#8369;
-                                            {{ number_format((float) $subtotal + (float) $price_diff, 2) }}</strong>
+                                            {{ $total = number_format((float) $subtotal + (float) $price_diff, 2) }}</strong>
                                     </td>
                                 </tr>
                                 <tr class='text-success'>
@@ -197,6 +204,48 @@
                             </tfoot>
                             </tbody>
                         </table>
+                    </div>
+                    @php
+                        $init = $initial->amount;
+                        $total = (float) $subtotal + (float) $price_diff;
+                    @endphp
+                    <div class="row g-3 px-3 py-5 border">
+                        <div class="col-6 d-flex flex-column">
+                            <div class="d-flex">
+                                <span>Delivery Date: {{ $oa->delivery_date }} </span>
+                            </div>
+                            <div class="d-flex">
+                                <span>Time: {{ $oa->delivery__time }} </span>
+                            </div>
+                            <br><br><br><br><br>
+                        </div>
+                        <div class="col-6 d-flex flex-column">
+                            <div class="d-flex">
+                                <span class="text-truncate">Current Spirit of Success Level: </span>
+                                <span>{{ $oa->current_level }}</span>
+                            </div>
+                            <div class="d-flex">
+                                <span>Initial Investment: </span>
+                                <span class="ms-1">{{ number_format($init ?? 0, 2) }}</span>
+                            </div>
+                            <div class="d-flex">
+                                <span>Terms: </span>
+                                <span class="ms-1">{{ $oa->terms  }}</span>
+                            </div>
+                            <p class="text-truncate">
+                                <small>Checks payable only to <span class="fw-bold text-uppercase">StrongNorth Cookware Trading</span></small>
+                            </p>
+                            <div class="d-flex flex-column justify-content-center pt-5 mt-10 text-center">
+                                <div class="mx-auto">
+                                    {{-- @if ($oa->host_signature)
+                                        <img src="{{ url('upload/' . $oa->host_signature) }}" class="h-20" alt="Host Signature">
+                                    @endif --}}
+                                </div>
+                                <div class="w-100 border-top">
+                                    <span>Signature of Host</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -659,32 +708,31 @@
     {{-- Update Payment --}}
     <div class="modal fade" id="updatePaymentModal" tabindex="-1" aria-labelledby="updatePaymentModal" aria-hidden="true"
     wire:ignore.self>
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="updatePaymentModal">Update Payment Status</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label for="status" class="form-label">Status</label>
-                    <select class="form-select" id="status" wire:model="status">
-                        <option value="Pending">Pending</option>
-                        <option value="Success">Success</option>
-                        <option value="Commissioned">Commissioned</option>
-                        <option value="Cancelled">Cancelled</option>
-                    </select>
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updatePaymentModal">Update Payment Status</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" wire:model="status">
+                            <option value="Pending">Pending</option>
+                            <option value="Success">Success</option>
+                            <option value="Commissioned">Commissioned</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" wire:click="update_payment()" data-bs-dismiss="modal" aria-label="Close">Submit</button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" wire:click="update_payment()" data-bs-dismiss="modal" aria-label="Close">Submit</button>
-            </div>
-        </div>
     </div>
 </div>
 {{-- Update Payment --}}
 </div>
-
 
 @push('scripts')
     <script>
