@@ -9,7 +9,7 @@
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
                         <span class="text-uppercase fw-bolder" id="pageTitle">Inventory Report</span>
-                                
+
                         <div class="d-flex w-75">
 
                             <div class="col ms-2">
@@ -24,7 +24,7 @@
                                     <input type="date" class="form-control form-control-sm" wire:model="from_date">
                                 </div>
                             </div>
-            
+
                             <!-- Date To Input -->
                             <div class="col ms-2">
                                 <div class="input-group">
@@ -32,7 +32,7 @@
                                     <input type="date" class="form-control form-control-sm" wire:model="to_date">
                                 </div>
                             </div>
-                            
+
                             <div class="col ms-2">
                                 <div class="input-group">
                                     <span class="input-group-text" id="search"><i class="fa-solid fa-magnifying-glass"></i></span>
@@ -43,7 +43,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
+                    <div class="table-responsive" id='print_div'>
                         <table class="table table-sm table-hover table-striped table-bordered" id="table">
                             <thead class="table-primary">
                                 <tr>
@@ -111,6 +111,14 @@
                     type: 'base64'
                 }) :
                 XLSX.writeFile(wb, fn || (slugify($('#pageTitle').text()) + '.' + (type || 'xlsx')));
+        }
+        function print_div(){
+            var printContents = document.getElementById('print_div').innerHTML;
+            var originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+            window.location.reload(true);
         }
     </script>
 @endpush

@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class ModeOfPayment extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'legend',
+        'name',
+    ];
 }

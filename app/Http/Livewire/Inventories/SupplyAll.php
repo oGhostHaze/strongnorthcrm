@@ -2,30 +2,35 @@
 
 namespace App\Http\Livewire\Inventories;
 
-use App\Models\SupplyInventoryItem;
+use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Models\SupplyInventoryItem;
 
 class SupplyAll extends Component
 {
-    use WithPagination;
-    protected $paginationTheme = 'bootstrap';
 
     public $search;
-
-    public function updatingSearch()
-    {
-        $this->resetPage();
-    }
+    public $start_date, $end_date;
 
     public function render()
     {
-        $data = SupplyInventoryItem::whereRelation('item', 'item_name', 'like', '%'.$this->search.'%')
+        $end_date = Carbon::parse($this->end_date)->endOfDay()->toDateString();
+        $data = SupplyInventoryItem::with('item', 'inv')->whereRelation('item', 'item_name', 'like', '%'.$this->search.'%')
+                            ->whereHas('inv', function($query) use ($end_date) {
+                                $query->whereBetween('date', [$this->start_date, $end_date]);
+                            })
                             ->orderByDesc('date')
-                            ->paginate(20);
+                            ->get();
 
         return view('livewire.inventories.supply-all', compact(
             'data'
         ));
+    }
+
+    public function mount()
+    {
+        $this->start_date = Carbon::now()->subWeek()->toDateString();
+        $this->end_date = Carbon::now()->toDateString();
     }
 }

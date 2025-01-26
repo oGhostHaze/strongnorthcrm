@@ -5,21 +5,29 @@
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
                         <span class="text-uppercase fw-bolder">Merchandise Inventory Report</span>
-                        <div class="d-flex w-25">
-                            <div class="">
-                                {{-- <a href="" class="btn btn-sm btn-primary">New Product</a> --}}
-                            </div>
-                            <div class="col ms-2">
-                                <div class="input-group">
-                                    <span class="input-group-text" id="search"><i class="fa-solid fa-magnifying-glass"></i></span>
-                                    <input type="text" class="form-control form-control-sm" placeholder="Search" aria-label="Search" aria-describedby="search" wire:model.lazy="search">
-                                </div>
-                            </div>
+                        <div class="d-flex">
+                                <button class="btn btn-sm btn-primary"  onClick="print_div()"><i class="fas fa-print me-1"></i>Print</button>
                         </div>
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-5 my-2">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text" id="search">FROM</span>
+                                <input type="date" class="form-control form-control-sm" aria-label="Search" aria-describedby="search" wire:model.lazy="start_date">
+                                <span class="input-group-text" id="search">TO</span>
+                                <input type="date" class="form-control form-control-sm" aria-label="Search" aria-describedby="search" wire:model.lazy="end_date">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-7 my-2">
+                            <div class="input-group">
+                                <span class="input-group-text" id="search"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" class="form-control form-control-sm" placeholder="Search" aria-label="Search" aria-describedby="search" wire:model.lazy="search">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive" id='print_div'>
                         <table class="table table-sm table-hover table-striped table-bordered">
                             <thead class="table-primary">
                                 <tr>
@@ -51,9 +59,21 @@
                             </tbody>
                         </table>
                     </div>
-                    <caption>{{$data->links()}}</caption>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script>
+        function print_div(){
+            var printContents = document.getElementById('print_div').innerHTML;
+            var originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+            window.location.reload(true);
+        }
+    </script>
+@endpush

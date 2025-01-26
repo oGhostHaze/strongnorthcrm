@@ -6,18 +6,6 @@
                     <div class="d-flex justify-content-between">
                         <span class="text-uppercase fw-bolder">Inventory Report</span>
                         <div class="d-flex">
-                                <div class="me-3 d-flex">
-                                    <label for="page_number" class="me-1">Record Per Page</label>
-                                    <div>
-                                        <select wire:model.lazy="page_number" class="form-select form-select-sm">
-                                            <option value="20">20</option>
-                                            <option value="30">30</option>
-                                            <option value="40">40</option>
-                                            <option value="50">50</option>
-                                            <option value="10000">All</option>
-                                        </select>
-                                    </div>
-                                </div>
                                 <button class="btn btn-sm btn-primary"  onClick="print_div()"><i class="fas fa-print me-1"></i>Print</button>
                         </div>
                     </div>
@@ -73,7 +61,6 @@
                             </tbody>
                         </table>
                     </div>
-                    <caption>{{$data->links()}}</caption>
                 </div>
             </div>
         </div>

@@ -7,6 +7,7 @@ use App\Models\DeliveryGift;
 use App\Models\DeliveryItem;
 use App\Models\InventoryDate;
 use App\Models\InventoryItem;
+use App\Models\ModeOfPayment;
 use App\Models\Order;
 use App\Models\OrderAgreementPaymentHistory;
 use App\Models\OrderGift;
@@ -32,7 +33,7 @@ class AgreementView extends Component
     public $return_id, $return_qty, $return_price, $return_product;
     public $delivery_client, $delivery_address, $delivery_contact, $delivery_consultant, $delivery_assoc, $delivery_presenter, $delivery_tb, $delivery_distributor, $delivery_code;
     public $price_difference, $price_override;
-    public $mop, $date_of_payment, $amount;
+    public $mop, $date_of_payment, $amount, $status, $payment_id;
     public $rsn_dr;
 
     public function render()
@@ -40,11 +41,14 @@ class AgreementView extends Component
         $products = Product::all();
         $payments = OrderPaymentHistory::where('oa_id', $this->oa->oa_id)->latest('date_of_payment')->get();
         $total_paid = OrderPaymentHistory::where('oa_id', $this->oa->oa_id)->sum('amount');
+        $mops = ModeOfPayment::all();
+
         return view('livewire.orders.agreement-view', [
             'products' => $products,
             'payments' => $payments,
             'payments' => $payments,
             'total_paid' => $total_paid,
+            'mops' => $mops,
         ]);
     }
 
@@ -412,5 +416,21 @@ class AgreementView extends Component
             $item->save();
         }
         $this->dispatchBrowserEvent('success', 'Total price successfully overriden for ORDER #' . $this->oa->oa_number);
+    }
+
+    public function update_payment()
+    {
+        $this->validate([
+            'payment_id' => 'required',
+            'status' => 'required',
+        ]);
+
+        $payment = OrderPaymentHistory::find($this->payment_id);
+        $payment->status = $this->status;
+        $payment->save();
+
+        $this->reset('status', 'payment_id');
+
+        $this->alert('success', 'Payment Updated!');
     }
 }

@@ -153,6 +153,9 @@
                             <a class="dropdown-item" href="{{ route('inventory.supply.all') }}">
                                 Office Supply Inventory
                             </a>
+                            <a class="dropdown-item" href="{{ route('rep.payments') }}">
+                                Order Payments
+                            </a>
                         </div>
                     </li>
                     <li class="nav-item dropdown">
@@ -170,6 +173,9 @@
                             </a>
                             <a class="dropdown-item" href="{{ route('ref.uom') }}">
                                 <i class="fa-solid fa-ruler"></i> Unit of Measurement
+                            </a>
+                            <a class="dropdown-item" href="{{ route('ref.mop') }}">
+                                <i class="fa-solid fa-credit-card"></i> Mode of Payments
                             </a>
                         </div>
                     </li>

@@ -22,11 +22,12 @@
                                         data-bs-target="#overrideTotalModal">Override Total Price</a>
                                 @endif
                             @endcan
+                            <button class="btn btn-sm btn-primary"  onClick="print_div()"><i class="fas fa-print me-1"></i>Print</button>
                         </div>
                     </div>
 
                 </div>
-                <div class="card-body">
+                <div class="card-body" id='print_div'>
                     <!-- Grid column -->
                     <div class="row">
                         <div class="col-sm-12 text-center">
@@ -423,7 +424,7 @@
                                 </thead>
                                 <tbody>
                                     @forelse ($payments as $payment)
-                                        <tr style="cursor: pointer">
+                                        <tr style="cursor: pointer" onclick="update_payment('{{ $payment->id }}', '{{ $payment->status }}')">
                                             <td>
                                                 <div class="d-flex justify-content-between">
                                                     <div>
@@ -433,7 +434,9 @@
                                                             class="badge text-small bg-secondary">{{ $payment->mop }}</span>
                                                     </div>
                                                     <div class="text-end">
-                                                        <span>{{ $payment->date_of_payment }}</span>
+                                                        <span>{{ $payment->date_of_payment }}</span><br>
+                                                        <span
+                                                            class="badge text-small @if($payment->status == 'Pending') bg-secondary @elseif($payment->status == 'Success') bg-primary @elseif($payment->status == 'Commissioned') bg-success @elseif($payment->status == 'Cancelled') bg-danger @endif">{{ $payment->status }}</span>
                                                     </div>
                                                 </div>
                                             </td>
@@ -627,7 +630,12 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="mop" class="form-label">Mode of Payment</label>
-                        <input type="text" class="form-control" id="mop" wire:model.defer="mop">
+                        <select class="form-select" id="mop" wire:model.defer="mop">
+                            <option value=""></option>
+                            @foreach ($mops as $row)
+                                <option value="{{ $row->legend }}">{{ $row->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label for="date_of_payment" class="form-label">Date</label>
@@ -647,15 +655,51 @@
         </div>
     </div>
     {{-- New Payment --}}
+
+    {{-- Update Payment --}}
+    <div class="modal fade" id="updatePaymentModal" tabindex="-1" aria-labelledby="updatePaymentModal" aria-hidden="true"
+    wire:ignore.self>
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updatePaymentModal">Update Payment Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" wire:model="status">
+                        <option value="Pending">Pending</option>
+                        <option value="Success">Success</option>
+                        <option value="Commissioned">Commissioned</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" wire:click="update_payment()" data-bs-dismiss="modal" aria-label="Close">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+{{-- Update Payment --}}
 </div>
 
 
 @push('scripts')
     <script>
+        function update_payment(id, status) {
+            @this.set('payment_id', id);
+            @this.set('status', status);
+
+            $('#updatePaymentModal').modal('toggle');
+        }
+
         $('#item_id').select2({
             dropdownParent: $('#addItemModal'),
             width: 'resolve'
         });
+
         $('#item_id').on('change', function(e) {
             var item_id = $('#item_id').select2("val");
             @this.set('item_id', item_id);
@@ -677,114 +721,6 @@
         window.addEventListener('gift_added', event => {
             $('#addGiftModal').modal('toggle');
         });
-
-        // function return_item(product_id, return_id, item_desc, up, order_qty)
-        // {
-        //     @this.set('return_product', product_id);
-        //     @this.set('return_price', up);
-        //     Swal.fire({
-        //         title: '<h5> Return' + ' Item <strong>' + item_desc + '</strong></h5>',
-        //         html: `
-    //                 <div class="input-group mb-2">
-    //                     <span class="input-group-text" id="qty">Issued Qty</span>
-    //                     <input id="ordered_qty" type="number" class="form-control form-control-sm" aria-label="Qty" aria-describedby="qty" readonly tabindex='-1'>
-    //                 </div>
-
-    //                 <div class="input-group mb-2">
-    //                     <span class="input-group-text" id="ret_label">Return Qty</span>
-    //                     <input id="return_qty" type="number" min="1" max="`+order_qty+`"class="form-control form-control-sm" aria-label="Return Qty" aria-describedby="ret_label" autofocus>
-    //                 </div>
-
-    //                 <div class="input-group mb-2">
-    //                     <span class="input-group-text" id="up">Unit Price</span>
-    //                     <input id="unit_price" type="number" step="0.01" class="form-control form-control-sm" aria-label="Unit Price" readonly tabindex='-1' aria-describedby="up" >
-    //                 </div>
-
-    //                 <div class="input-group mb-2">
-    //                     <span class="input-group-text" id="total_label">TOTAL</span>
-    //                     <input id="total" type="number" step="0.01" class="form-control form-control-sm" aria-label="Unit Price" aria-describedby="total" readonly tabindex='-1'>
-    //                 </div>
-    //                     `,
-        //         showCancelButton: true,
-        //         confirmButtonColor: '#d33',
-        //         confirmButtonText: `Confirm`,
-        //         didOpen: () => {
-        //             const ordered_qty = Swal.getHtmlContainer().querySelector('#ordered_qty')
-        //             const return_qty = Swal.getHtmlContainer().querySelector('#return_qty')
-        //             const unit_price = Swal.getHtmlContainer().querySelector('#unit_price')
-        //             const total = Swal.getHtmlContainer().querySelector('#total')
-        //             ordered_qty.value = order_qty
-        //             unit_price.value = up
-        //             total.value = parseFloat(ordered_qty.value) * parseFloat(unit_price.value)
-        //             return_qty.focus()
-        //             @this.set('return_id',return_id)
-
-        //             return_qty.addEventListener('input', () => {
-        //                 @this.set('return_qty',return_qty.value)
-        //                 total.value = parseFloat(return_qty.value) * parseFloat(unit_price.value)
-        //             })
-        //         }
-        //     }).then((result) => {
-        //             /* Read more about isConfirmed, isDenied below */
-        //             if (result.isConfirmed) {
-        //                 Livewire.emit('return_item', return_id)
-        //             }
-        //     });
-        // }
-
-        // function return_gift(product_id, return_id, item_desc, up, order_qty)
-        // {
-        //     @this.set('return_product', product_id);
-        //     @this.set('return_price', up);
-        //     Swal.fire({
-        //         title: '<h5> Return' + ' Gift<strong> ' + item_desc + '</strong></h5>',
-        //         html: `
-    //                 <div class="input-group mb-2">
-    //                     <span class="input-group-text" id="qty">Issued Qty</span>
-    //                     <input id="ordered_qty" type="number" class="form-control form-control-sm" aria-label="Qty" aria-describedby="qty" readonly tabindex='-1'>
-    //                 </div>
-
-    //                 <div class="input-group mb-2">
-    //                     <span class="input-group-text" id="ret_label">Return Qty</span>
-    //                     <input id="return_qty" type="number" min="1" max="`+order_qty+`"class="form-control form-control-sm" aria-label="Return Qty" aria-describedby="ret_label" autofocus>
-    //                 </div>
-
-    //                 <div class="input-group mb-2">
-    //                     <span class="input-group-text" id="up">Unit Price</span>
-    //                     <input id="unit_price" type="number" step="0.01" class="form-control form-control-sm" aria-label="Unit Price" readonly tabindex='-1' aria-describedby="up" >
-    //                 </div>
-
-    //                 <div class="input-group mb-2">
-    //                     <span class="input-group-text" id="total_label">TOTAL</span>
-    //                     <input id="total" type="number" step="0.01" class="form-control form-control-sm" aria-label="Unit Price" aria-describedby="total" readonly tabindex='-1'>
-    //                 </div>
-    //                     `,
-        //         showCancelButton: true,
-        //         confirmButtonColor: '#d33',
-        //         confirmButtonText: `Confirm`,
-        //         didOpen: () => {
-        //             const ordered_qty = Swal.getHtmlContainer().querySelector('#ordered_qty')
-        //             const return_qty = Swal.getHtmlContainer().querySelector('#return_qty')
-        //             const unit_price = Swal.getHtmlContainer().querySelector('#unit_price')
-        //             const total = Swal.getHtmlContainer().querySelector('#total')
-        //             ordered_qty.value = order_qty
-        //             unit_price.value = up
-        //             total.value = parseFloat(ordered_qty.value) * parseFloat(unit_price.value)
-        //             return_qty.focus()
-        //             @this.set('return_id',return_id)
-
-        //             return_qty.addEventListener('input', () => {
-        //                 @this.set('return_qty',return_qty.value)
-        //                 total.value = parseFloat(return_qty.value) * parseFloat(unit_price.value)
-        //             })
-        //         }
-        //     }).then((result) => {
-        //             /* Read more about isConfirmed, isDenied below */
-        //             if (result.isConfirmed) {
-        //                 Livewire.emit('return_gift', return_id)
-        //             }
-        //     });
-        // }
 
         function delete_item(remove_id, product_desc) {
             Swal.fire({
@@ -810,6 +746,14 @@
                     Livewire.emit('remove_gift', remove_id)
                 }
             });
+        }
+        function print_div(){
+            var printContents = document.getElementById('print_div').innerHTML;
+            var originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+            window.location.reload(true);
         }
     </script>
 @endpush

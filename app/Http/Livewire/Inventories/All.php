@@ -9,48 +9,24 @@ use Carbon\Carbon;
 
 class All extends Component
 {
-    use WithPagination;
-    protected $paginationTheme = 'bootstrap';
-
-    public $search, $start_date, $end_date, $page_number = 20;
-
-
-    public function updatedPageNumber()
-    {
-        $this->resetPage();
-    }
-
-    public function updatingSearch()
-    {
-        $this->resetPage();
-    }
-    
-    public function updatedStartDate()
-    {
-        $this->resetPage();
-    }
-    
-    public function updatedEndDate()
-    {
-        $this->resetPage();
-    }
+    public $search, $start_date, $end_date;
 
     public function render()
     {
-        $end_date = Carbon::parse($this->end_date)->addDay();
+        $end_date = Carbon::parse($this->end_date)->endOfDay()->toDateString();
         $data = InventoryItem::whereRelation('product', 'product_description', 'like', '%'.$this->search.'%')
                             ->whereBetween('created_at', [$this->start_date, $end_date])
                             ->orderByDesc('inventory_date_id')
-                            ->paginate($this->page_number);
+                            ->get();
 
         return view('livewire.inventories.all', [
             'data' => $data,
         ]);
     }
-    
+
     public function mount()
     {
-        $this->start_date = date('Y-m-d');
-        $this->end_date = date('Y-m-d');
+        $this->start_date = Carbon::now()->subWeek()->toDateString();
+        $this->end_date = Carbon::now()->toDateString();
     }
 }

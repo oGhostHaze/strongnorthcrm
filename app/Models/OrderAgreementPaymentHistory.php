@@ -15,6 +15,7 @@ class OrderAgreementPaymentHistory extends Model
         'mop',
         'amount',
         'date_of_payment',
+        'status',
     ];
 
     public function details()
