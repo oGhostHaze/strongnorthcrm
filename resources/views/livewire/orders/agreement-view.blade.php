@@ -2,10 +2,11 @@
     <style>
         @media print {
             #print_div {
-                font-size: 6px; /* Adjust the font size as needed */
+                font-size: 6px;
+                /* Adjust the font size as needed */
             }
         }
-        </style>
+    </style>
     @php
         $col = 7;
     @endphp
@@ -29,7 +30,9 @@
                                         data-bs-target="#overrideTotalModal">Override Total Price</a>
                                 @endif
                             @endcan
-                            <button class="btn btn-sm btn-primary"  onClick="print_div()"><i class="fas fa-print me-1"></i>Print</button>
+                            <a class="btn btn-sm btn-primary me-2 ms-2"
+                                href="{{ route('order.agreements.view.print', $oa->oa_number) }}"><i
+                                    class="fas fa-print"></i>Preview</a>
                         </div>
                     </div>
 
@@ -230,10 +233,11 @@
                             </div>
                             <div class="d-flex">
                                 <span>Terms: </span>
-                                <span class="ms-1">{{ $oa->terms  }}</span>
+                                <span class="ms-1">{{ $oa->terms }}</span>
                             </div>
                             <p class="text-truncate">
-                                <small>Checks payable only to <span class="fw-bold text-uppercase">StrongNorth Cookware Trading</span></small>
+                                <small>Checks payable only to <span class="fw-bold text-uppercase">StrongNorth
+                                        Enterprise OPC</span></small>
                             </p>
                             <div class="d-flex flex-column justify-content-center pt-5 mt-10 text-center">
                                 <div class="mx-auto">
@@ -473,7 +477,8 @@
                                 </thead>
                                 <tbody>
                                     @forelse ($payments as $payment)
-                                        <tr style="cursor: pointer" onclick="update_payment('{{ $payment->id }}', '{{ $payment->status }}')">
+                                        <tr style="cursor: pointer"
+                                            onclick="update_payment('{{ $payment->id }}', '{{ $payment->status }}')">
                                             <td>
                                                 <div class="d-flex justify-content-between">
                                                     <div>
@@ -485,7 +490,7 @@
                                                     <div class="text-end">
                                                         <span>{{ $payment->date_of_payment }}</span><br>
                                                         <span
-                                                            class="badge text-small @if($payment->status == 'Pending') bg-secondary @elseif($payment->status == 'Success') bg-primary @elseif($payment->status == 'Commissioned') bg-success @elseif($payment->status == 'Cancelled') bg-danger @endif">{{ $payment->status }}</span>
+                                                            class="badge text-small @if ($payment->status == 'Pending') bg-secondary @elseif($payment->status == 'Success') bg-primary @elseif($payment->status == 'Commissioned') bg-success @elseif($payment->status == 'Cancelled') bg-danger @endif">{{ $payment->status }}</span>
                                                     </div>
                                                 </div>
                                             </td>
@@ -706,8 +711,8 @@
     {{-- New Payment --}}
 
     {{-- Update Payment --}}
-    <div class="modal fade" id="updatePaymentModal" tabindex="-1" aria-labelledby="updatePaymentModal" aria-hidden="true"
-    wire:ignore.self>
+    <div class="modal fade" id="updatePaymentModal" tabindex="-1" aria-labelledby="updatePaymentModal"
+        aria-hidden="true" wire:ignore.self>
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
                 <div class="modal-header">
@@ -726,12 +731,13 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" wire:click="update_payment()" data-bs-dismiss="modal" aria-label="Close">Submit</button>
+                    <button type="button" class="btn btn-primary" wire:click="update_payment()"
+                        data-bs-dismiss="modal" aria-label="Close">Submit</button>
                 </div>
             </div>
+        </div>
     </div>
-</div>
-{{-- Update Payment --}}
+    {{-- Update Payment --}}
 </div>
 
 @push('scripts')
@@ -795,7 +801,8 @@
                 }
             });
         }
-        function print_div(){
+
+        function print_div() {
             var printContents = document.getElementById('print_div').innerHTML;
             var originalContents = document.body.innerHTML;
             document.body.innerHTML = printContents;

@@ -12,17 +12,17 @@ class OrderItem extends Model
     protected $table = 'order_items', $primaryKey = 'item_id';
     public $timestamps = false;
     protected $fillable = [
-                            'oa_id',
-                            'product_id',
-                            'item_price',
-                            'item_qty',
-                            'item_total',
-                            'status',
-                            'remarks',
-                            'released',
-                            'returned',
-                            'tblset_id'
-                        ];
+        'oa_id',
+        'product_id',
+        'item_price',
+        'item_qty',
+        'item_total',
+        'status',
+        'remarks',
+        'released',
+        'returned',
+        'tblset_id'
+    ];
 
     public function details()
     {
@@ -30,6 +30,11 @@ class OrderItem extends Model
     }
 
     public function item()
+    {
+        return $this->belongsTo(Product::class, 'product_id', 'product_id');
+    }
+
+    public function product()
     {
         return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
