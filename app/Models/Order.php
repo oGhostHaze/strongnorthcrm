@@ -35,6 +35,15 @@ class Order extends Model
         'price_diff',
         'price_override',
         'reference_oa',
+
+        'current_level',
+        'delivery_date',
+        'delivery_time',
+        'initial_investment',
+        'terms',
+        'host_signature',
+        'price_diff',
+        'price_override',
     ];
 
     public function items()

@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\OrderController;
 use App\Http\Livewire\Home;
 use App\Http\Livewire\Sets\Setlist;
 use Illuminate\Support\Facades\Auth;
@@ -11,10 +10,12 @@ use App\Http\Livewire\Servicing\SrView;
 use App\Http\Livewire\Sets\Composition;
 use App\Http\Livewire\Inventories\PerDr;
 use App\Http\Livewire\Orders\Agreements;
+use App\Http\Controllers\OrderController;
 use App\Http\Livewire\Orders\AgreementView;
 use App\Http\Livewire\Products\ProductList;
 use App\Http\Livewire\Products\StockinList;
 use App\Http\Livewire\Inventories\SupplyAll;
+use App\Http\Livewire\Reports\PaymentReport;
 use App\Http\Livewire\Employees\EmployeeList;
 use App\Http\Livewire\Merchandise\MerchItems;
 use App\Http\Livewire\Deliveries\DeliveryList;
@@ -26,6 +27,7 @@ use App\Http\Livewire\CookingShows\ViewCsOrder;
 use App\Http\Livewire\Merchandise\MerchRsnView;
 use App\Http\Livewire\Merchandise\MerchStockIn;
 use League\CommonMark\Delimiter\DelimiterStack;
+use App\Http\Controllers\SignaturePadController;
 use App\Http\Livewire\Orders\Returns\Listreturn;
 use App\Http\Livewire\Orders\Returns\Viewreturn;
 use App\Http\Livewire\Supplies\SupplyCategories;
@@ -37,7 +39,6 @@ use App\Http\Livewire\Supplies\SupplyDisposedItems;
 use App\Http\Livewire\Merchandise\MerchDeliveryView;
 use App\Http\Livewire\Products\StockinReportFiltered;
 use App\Http\Livewire\References\ManageModeOfPayment;
-use App\Http\Livewire\Reports\PaymentReport;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,6 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/order/agreements/cooking-shows', PendingOrders::class)->name('order.agreements.cs');
     Route::get('/order/agreements/view/{oa}', AgreementView::class)->name('order.agreements.view');
     Route::get('/order/agreements/view/{oa_no}/print', [OrderController::class, 'view'])->name('order.agreements.view.print');
+    Route::post('/order/update-details', [OrderController::class, 'update_details'])->name('order.update_details');
     Route::get('/order/agreements/returns/view/{rsn}', Viewreturn::class)->name('order.returns.view');
     Route::get('/order/returns/list', Listreturn::class)->name('order.returns.list');
 
@@ -120,4 +122,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('/reports')->name('rep.')->group(function () {
         Route::get('/order-payments', PaymentReport::class)->name('payments');
     });
+
+    Route::get('signaturepad/{oa_id}', [SignaturePadController::class, 'index'])->name('signaturepad');
+    Route::post('signaturepad', [SignaturePadController::class, 'upload'])->name('signaturepad.upload');
 });

@@ -19,4 +19,16 @@ class OrderController extends Controller
         $mops = ModeOfPayment::all();
         return view('order-print-preview', compact('oa', 'payments', 'initial', 'total_paid', 'mops'));
     }
+
+    public function update_details(Request $request)
+    {
+        $oa = Order::where('oa_number', $request->oa_number)->first();
+        $oa->current_level = $request->current_level;
+        $oa->delivery_date = $request->delivery_date;
+        $oa->delivery_time = $request->delivery_time;
+        $oa->initial_investment = $request->initial_investment;
+        $oa->terms = $request->terms;
+        $oa->save();
+        return redirect(route('order.agreements.view.print', $oa->oa_number));
+    }
 }

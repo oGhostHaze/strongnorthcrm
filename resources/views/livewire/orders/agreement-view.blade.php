@@ -30,7 +30,7 @@
                                         data-bs-target="#overrideTotalModal">Override Total Price</a>
                                 @endif
                             @endcan
-                            <a class="btn btn-sm btn-primary me-2 ms-2"
+                            <a class="btn btn-sm btn-primary me-2 ms-2" target="_blank"
                                 href="{{ route('order.agreements.view.print', $oa->oa_number) }}"><i
                                     class="fas fa-print"></i>Preview</a>
                         </div>
@@ -264,7 +264,7 @@
                                 aria-selected="true">List of DR</button>
                         </li>
                         @can('manage-orders-dr')
-                            @if ($oa->items()->sum('item_qty') + $oa->gifts()->sum('item_qty') != 0)
+                            @if ($oa->items()->sum('item_qty') + $oa->gifts()->sum('item_qty') != 0 OR $initial)
                                 <li class="nav-item" role="presentation" wire:ignore.self>
                                     <button class="nav-link" id="new-tab" data-bs-toggle="tab"
                                         data-bs-target="#new_dr" type="button" role="tab" aria-controls="profile"
@@ -395,7 +395,7 @@
                                             <option value="">Select a value ...</option>
                                             <option value="NEW ORDER">NEW ORDER</option>
                                             <option value="TRIAL DELIVERY">TRIAL DELIVERY</option>
-                                            <option value="TFO">TFO</option>
+                                            {{-- <option value="TFO">TFO</option>
                                             <option value="TFG">TFG</option>
                                             <option value="INCR">INCR</option>
                                             <option value="INCR+">INCR+</option>
@@ -404,7 +404,8 @@
                                             <option value="INC-DIGI">INC-DIGI</option>
                                             <option value="INC-LMC">INC-LMC</option>
                                             <option value="WARRANTY REPLACEMENT">WARRANTY REPLACEMENT</option>
-                                            <option value="LTD-WTY">LTD-WTY</option>
+                                            <option value="LTD-WTY">LTD-WTY</option> --}}
+                                            <option value="DEMO KIT">GIFT</option>
                                             <option value="DEMO KIT">DEMO KIT</option>
                                             <option value="DISPLAY">DISPLAY</option>
                                         </select>
