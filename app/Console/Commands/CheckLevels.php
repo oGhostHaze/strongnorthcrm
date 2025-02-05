@@ -42,6 +42,7 @@ class CheckLevels extends Command
         Mail::to('joshua070915@gmail.com')->send(new ReorderLevelReportMail());
         Mail::to('ferdsragasa@yahoo.com')->send(new ReorderLevelReportMail());
         Mail::to('strongnorth9319@gmail.com')->send(new ReorderLevelReportMail());
+        Mail::to('barbiemitz79@yahoo.com')->send(new ReorderLevelReportMail());
         info('Reorder Level Report sent!');
         return 0;
     }
