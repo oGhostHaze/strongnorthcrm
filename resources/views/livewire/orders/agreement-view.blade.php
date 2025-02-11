@@ -209,7 +209,7 @@
                         </table>
                     </div>
                     @php
-                        $init = $initial->amount;
+                        $init = $initial ? $initial->amount : 0;
                         $total = (float) $subtotal + (float) $price_diff;
                     @endphp
                     <div class="row g-3 px-3 py-5 border">
@@ -264,7 +264,7 @@
                                 aria-selected="true">List of DR</button>
                         </li>
                         @can('manage-orders-dr')
-                            @if ($oa->items()->sum('item_qty') + $oa->gifts()->sum('item_qty') != 0 OR $initial)
+                            @if ($oa->items()->sum('item_qty') + $oa->gifts()->sum('item_qty') != 0 or $initial)
                                 <li class="nav-item" role="presentation" wire:ignore.self>
                                     <button class="nav-link" id="new-tab" data-bs-toggle="tab"
                                         data-bs-target="#new_dr" type="button" role="tab" aria-controls="profile"
@@ -470,16 +470,24 @@
                                 <thead class="table-primary">
                                     <tr>
                                         <th>
-                                            Payment History
-                                            <button class="btn btn-sm btn-primary float-end" data-bs-toggle="modal"
-                                                data-bs-target="#paymentModal">Add Payment</button>
+                                            <div class="d-flex justify-content-between">
+                                                Payment History
+                                                <div class="fload-end d-flex justify-content-end">
+                                                    <button class="btn btn-sm btn-primary ml-auto"
+                                                        data-bs-toggle="modal" data-bs-target="#paymentModal">Add
+                                                        Payment</button>
+                                                    <a href="{{ route('order.agreements.batch-add-payments', ['oa_id' => $oa->oa_id]) }}"
+                                                        target="_blank"
+                                                        class="btn btn-sm btn-primary float-end ms-2">Batch Add</a>
+                                                </div>
+                                            </div>
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse ($payments as $payment)
                                         <tr style="cursor: pointer"
-                                            onclick="update_payment('{{ $payment->id }}', '{{ $payment->status }}')">
+                                            onclick="update_payment(`{{ $payment->id }}`, `{{ $payment->status }}`, `{{ $payment->remarks }}`)">
                                             <td>
                                                 <div class="d-flex justify-content-between">
                                                     <div>
@@ -487,11 +495,15 @@
                                                             class="fw-bold text-primary">{{ number_format($payment->amount, 2) }}</span><br>
                                                         <span
                                                             class="badge text-small bg-secondary">{{ $payment->mop }}</span>
+                                                        @if ($payment->remarks)
+                                                            <br>
+                                                            <p>{{ $payment->remarks }}</p>
+                                                        @endif
                                                     </div>
                                                     <div class="text-end">
                                                         <span>{{ $payment->date_of_payment }}</span><br>
                                                         <span
-                                                            class="badge text-small @if ($payment->status == 'Pending') bg-secondary @elseif($payment->status == 'Success') bg-primary @elseif($payment->status == 'Commissioned') bg-success @elseif($payment->status == 'Cancelled') bg-danger @endif">{{ $payment->status }}</span>
+                                                            class="badge text-small @if ($payment->status == 'Unposted') bg-secondary @elseif($payment->status == 'Posted') bg-primary @elseif($payment->status == 'Commissioned') bg-success @elseif($payment->status == 'On Hold') bg-danger @endif">{{ $payment->status }}</span>
                                                     </div>
                                                 </div>
                                             </td>
@@ -724,11 +736,15 @@
                     <div class="mb-3">
                         <label for="status" class="form-label">Status</label>
                         <select class="form-select" id="status" wire:model="status">
-                            <option value="Pending">Pending</option>
-                            <option value="Success">Success</option>
+                            <option value="Unposted">Unposted</option>
+                            <option value="Posted">Posted</option>
                             <option value="Commissioned">Commissioned</option>
-                            <option value="Cancelled">Cancelled</option>
+                            <option value="On Hold">On Hold</option>
                         </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="remarks">Remarks</label>
+                        <textarea type="text" class="form-control" id="remarks" wire:model="remarks"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -743,9 +759,10 @@
 
 @push('scripts')
     <script>
-        function update_payment(id, status) {
+        function update_payment(id, status, remarks) {
             @this.set('payment_id', id);
             @this.set('status', status);
+            @this.set('remarks', remarks);
 
             $('#updatePaymentModal').modal('toggle');
         }

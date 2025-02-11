@@ -37,6 +37,7 @@ use App\Http\Livewire\References\MeasurementUnit;
 use App\Http\Livewire\Merchandise\MerchOrdersView;
 use App\Http\Livewire\Supplies\SupplyDisposedItems;
 use App\Http\Livewire\Merchandise\MerchDeliveryView;
+use App\Http\Livewire\Orders\BatchAddPayments;
 use App\Http\Livewire\Products\StockinReportFiltered;
 use App\Http\Livewire\References\ManageModeOfPayment;
 
@@ -70,6 +71,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/order/agreements/cooking-shows', PendingOrders::class)->name('order.agreements.cs');
     Route::get('/order/agreements/view/{oa}', AgreementView::class)->name('order.agreements.view');
     Route::get('/order/agreements/view/{oa_no}/print', [OrderController::class, 'view'])->name('order.agreements.view.print');
+    Route::get('/order/agreements/add-payments/{oa_id}', BatchAddPayments::class)->name('order.agreements.batch-add-payments');
     Route::post('/order/update-details', [OrderController::class, 'update_details'])->name('order.update_details');
     Route::get('/order/agreements/returns/view/{rsn}', Viewreturn::class)->name('order.returns.view');
     Route::get('/order/returns/list', Listreturn::class)->name('order.returns.list');

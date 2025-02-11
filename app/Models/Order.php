@@ -78,7 +78,7 @@ class Order extends Model
         $total = (float) $subtotal + (float) $price_diff;
         $total_paid = $this->payments->sum('amount');
         $percentage = 0;
-        if ($total_paid > 0) {
+        if ($total_paid > 0 && $total > 0) {
             $percentage = $total_paid / $total;
         }
 
