@@ -30,6 +30,10 @@ class BatchAddPayments extends Component
             'date_of_payment' => Carbon::now()->format('Y-m-d'),
             'remarks' => '',
             'status' => 'Unposted',
+            'due_date' => null,
+            'pdc_date' => null,
+            'reference_no' => '',
+            'recon_date' => null,
         ];
     }
 
@@ -47,6 +51,10 @@ class BatchAddPayments extends Component
             'payments.*.date_of_payment' => 'required|date',
             'payments.*.remarks' => 'nullable|string',
             'payments.*.status' => 'required|in:Posted,Unposted,On-hold',
+            'payments.*.due_date' => 'nullable|date',
+            'payments.*.pdc_date' => 'nullable|date',
+            'payments.*.reference_no' => 'nullable|string',
+            'payments.*.recon_date' => 'nullable|date',
         ]);
 
         foreach ($this->payments as $payment) {
@@ -54,9 +62,7 @@ class BatchAddPayments extends Component
             OrderPaymentHistory::create($payment);
         }
 
-        session()->flash('success', 'Payments added successfully.');
-        $this->payments = [];
-        $this->addPaymentRow();
+        return redirect()->route('order.agreements.view', ['oa' => $this->oa])->with('success', 'Payments added successfully.');
     }
 
     public function render()

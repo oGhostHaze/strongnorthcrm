@@ -23,7 +23,13 @@
                                     wire:model.lazy="end_date">
                             </div>
                         </div>
-                        <div class="col-sm-12 col-md-7 my-2">
+                        <div class="col-md-3 col-sm-12">
+                            <select class="form-select form-select-sm my-2 me-2" wire:model="search_column">
+                                <option value="oa_client">Client</option>
+                                <option value="oa_consultant">Consultant</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-12 col-md-4 my-2">
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text" id="search"><i
                                         class="fa-solid fa-magnifying-glass"></i></span>
@@ -46,6 +52,7 @@
                                     <th>Reference #</th>
                                     <th>Amount due</th>
                                     <th>Recon Date</th>
+                                    <th>Remarks</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -72,6 +79,9 @@
                                         <td>{{ $row->amount }}</td>
                                         <td>{{ $row->recon_date }}</td>
                                         <td>
+                                            <p>{{ $row->remarks }}</p>
+                                        </td>
+                                        <td>
                                             <span
                                                 class="badge text-small @if ($row->status == 'Unposted') bg-secondary @elseif($row->status == 'Posted') bg-primary @elseif($row->status == 'Commissioned') bg-success @elseif($row->status == 'On Hold') bg-danger @endif">{{ $row->status }}</span>
 
@@ -79,7 +89,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center">No Record Found</td>
+                                        <td colspan="12" class="text-center">No Record Found</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -109,6 +119,10 @@
                             <option value="On Hold">On Hold</option>
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label for="remarks">Remarks</label>
+                        <textarea type="text" class="form-control" id="remarks" wire:model="remarks"></textarea>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" wire:click="update_payment()" data-bs-dismiss="modal"
@@ -122,9 +136,10 @@
 
 @push('scripts')
     <script>
-        function update_payment(id, status) {
+        function update_payment(id, status, remarks) {
             @this.set('payment_id', id);
             @this.set('status', status);
+            @this.set('remarks', remarks);
 
             $('#updatePaymentModal').modal('toggle');
         }

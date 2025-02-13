@@ -34,6 +34,8 @@ class AgreementView extends Component
     public $delivery_client, $delivery_address, $delivery_contact, $delivery_consultant, $delivery_assoc, $delivery_presenter, $delivery_tb, $delivery_distributor, $delivery_code;
     public $price_difference, $price_override;
     public $mop, $date_of_payment, $amount, $status, $payment_id;
+    public $remarks;
+
     public $rsn_dr;
 
     public function render()

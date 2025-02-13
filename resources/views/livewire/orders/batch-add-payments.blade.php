@@ -42,6 +42,10 @@
                             <th>Mode of Payment</th>
                             <th>Amount</th>
                             <th>Date of Payment</th>
+                            <th>Due Date</th>
+                            <th>PDC Date</th>
+                            <th>Reference No.</th>
+                            <th>Reconciliation Date</th>
                             <th>Remarks</th>
                             <th>Status</th>
                             <th>Action</th>
@@ -72,6 +76,34 @@
                                     <input type="date" class="form-control"
                                         wire:model="payments.{{ $index }}.date_of_payment">
                                     @error("payments.$index.date_of_payment")
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </td>
+                                <td>
+                                    <input type="date" class="form-control"
+                                        wire:model="payments.{{ $index }}.due_date">
+                                    @error("payments.$index.due_date")
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </td>
+                                <td>
+                                    <input type="date" class="form-control"
+                                        wire:model="payments.{{ $index }}.pdc_date">
+                                    @error("payments.$index.pdc_date")
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control"
+                                        wire:model="payments.{{ $index }}.reference_no">
+                                    @error("payments.$index.reference_no")
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </td>
+                                <td>
+                                    <input type="date" class="form-control"
+                                        wire:model="payments.{{ $index }}.recon_date">
+                                    @error("payments.$index.recon_date")
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
                                 </td>

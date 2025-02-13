@@ -473,12 +473,9 @@
                                             <div class="d-flex justify-content-between">
                                                 Payment History
                                                 <div class="fload-end d-flex justify-content-end">
-                                                    <button class="btn btn-sm btn-primary ml-auto"
-                                                        data-bs-toggle="modal" data-bs-target="#paymentModal">Add
-                                                        Payment</button>
                                                     <a href="{{ route('order.agreements.batch-add-payments', ['oa_id' => $oa->oa_id]) }}"
                                                         target="_blank"
-                                                        class="btn btn-sm btn-primary float-end ms-2">Batch Add</a>
+                                                        class="btn btn-sm btn-primary float-end ms-2">Add Payment</a>
                                                 </div>
                                             </div>
                                         </th>
@@ -684,44 +681,6 @@
         </div>
     </div>
     {{-- New RSN --}}
-
-    {{-- New Payment --}}
-    <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModal" aria-hidden="true"
-        wire:ignore.self>
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="paymentModal">Add Payment</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="mop" class="form-label">Mode of Payment</label>
-                        <select class="form-select" id="mop" wire:model.defer="mop">
-                            <option value=""></option>
-                            @foreach ($mops as $row)
-                                <option value="{{ $row->legend }}">{{ $row->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="date_of_payment" class="form-label">Date</label>
-                        <input type="date" class="form-control" id="date_of_payment"
-                            wire:model.defer="date_of_payment">
-                    </div>
-                    <div class="mb-3">
-                        <label for="amount" class="form-label">Amount</label>
-                        <input type="number" class="form-control" id="amount" step="0.01"
-                            wire:model.defer="amount">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" wire:click="add_payment()">Submit</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    {{-- New Payment --}}
 
     {{-- Update Payment --}}
     <div class="modal fade" id="updatePaymentModal" tabindex="-1" aria-labelledby="updatePaymentModal"

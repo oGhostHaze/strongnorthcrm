@@ -16,6 +16,10 @@ class OrderAgreementPaymentHistory extends Model
         'amount',
         'date_of_payment',
         'status',
+        'due_date',
+        'pdc_date',
+        'reference_no',
+        'recon_date'
     ];
 
     public function details()
