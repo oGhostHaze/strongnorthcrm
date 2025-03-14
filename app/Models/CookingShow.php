@@ -59,28 +59,28 @@ class CookingShow extends Model
 
         if ($this->result == 'Closed') {
             $result = '
-            <div class="shadow-lg badge badge-success">
+            <div class="shadow-lg badge bg-success">
                 <div>
                     <span>' . $this->result . '</span>
                 </div>
             </div>';
         } elseif ($this->result == 'For Follow Up') {
             $result = '
-            <div class="shadow-lg badge badge-warning">
+            <div class="shadow-lg badge bg-warning">
                 <div>
                     <span>' . $this->result . '</span>
                 </div>
             </div>';
         } elseif ($this->result == 'Booked') {
             $result = '
-            <div class="shadow-lg badge badge-ghost">
+            <div class="shadow-lg badge bg-ghost">
                 <div>
                     <span>' . $this->result . '</span>
                 </div>
             </div>';
         } else {
             $result = '
-            <div class="shadow-lg badge badge-error">
+            <div class="shadow-lg badge bg-error">
                 <div>
                     <span>' . $this->result . '</span>
                 </div>

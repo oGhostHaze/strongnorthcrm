@@ -11,6 +11,10 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <!-- Left Side Of Navbar -->
             <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/"><i class="fa-solid fa-home"></i>
+                        Home</a>
+                </li>
                 @auth
                     @can('view-products')
                         <li class="nav-item dropdown">
@@ -141,6 +145,9 @@
                         </a>
 
                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="{{ route('reports.index') }}">
+                                Report Generator
+                            </a>
                             <a class="dropdown-item" href="{{ route('inventory.all') }}">
                                 Product Inventory
                             </a>

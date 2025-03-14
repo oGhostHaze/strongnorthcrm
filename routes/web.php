@@ -127,4 +127,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('signaturepad/{oa_id}', [SignaturePadController::class, 'index'])->name('signaturepad');
     Route::post('signaturepad', [SignaturePadController::class, 'upload'])->name('signaturepad.upload');
+
+    // Report Generator Routes
+    Route::get('/reports/generator', [App\Http\Controllers\ReportGeneratorController::class, 'index'])->name('reports.index');
+    Route::post('/reports/generate', [App\Http\Controllers\ReportGeneratorController::class, 'generate'])->name('reports.generate');
 });
