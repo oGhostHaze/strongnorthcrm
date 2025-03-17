@@ -395,6 +395,7 @@
                                             <option value="">Select a value ...</option>
                                             <option value="NEW ORDER">NEW ORDER</option>
                                             <option value="TRIAL DELIVERY">TRIAL DELIVERY</option>
+                                            <option value="FOR ADJUSTMENT">FOR ADJUSTMENT</option>
                                             {{-- <option value="TFO">TFO</option>
                                             <option value="TFG">TFG</option>
                                             <option value="INCR">INCR</option>

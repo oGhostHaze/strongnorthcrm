@@ -14,8 +14,14 @@
                                         data-bs-target="#returnGiftModal">Return Gift</a>
                                 @endcan
                                 @can('approve-return-order')
-                                    <a href="#" class="btn btn-sm btn-secondary ms-2" wire:click="confirm_approval()"
-                                        wire:loading.attr='disabled'>Approve Returns</a>
+                                    @if ($rsn->status == 'For Approval')
+                                        <a href="#" class="btn btn-sm btn-secondary ms-2"
+                                            wire:click="confirm_approval('Approve')"
+                                            wire:loading.attr='disabled'>Approve</a>
+                                        <a href="#" class="btn btn-sm btn-secondary ms-2"
+                                            wire:click="confirm_approval('Decline')"
+                                            wire:loading.attr='disabled'>Decline</a>
+                                    @endif
                                 @endcan
                             @else
                                 <a href="#" class="btn btn-sm btn-info ms-2" wire:click="print_this()"
@@ -170,7 +176,8 @@
                                                     printed name</span>
                                             </td>
                                             <td class="text-center"></br></br>
-                                                <hr class="py-0 my-0"><span class="py-0 my-0 font-small">Signature over
+                                                <hr class="py-0 my-0"><span class="py-0 my-0 font-small">Signature
+                                                    over
                                                     printed name</span>
                                             </td>
                                         </tr>

@@ -23,4 +23,9 @@ class MerchandiseDeliveryItem extends Model
         return $this->belongsTo(MerchandiseItem::class, 'product_id');
     }
 
+    public function delivery()
+    {
+        return $this->belongsTo(MerchandiseDelivery::class, 'transno');
+    }
+
 }

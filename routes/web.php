@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Livewire\Home;
+use App\Http\Livewire\Payments\AllPayments;
 use App\Http\Livewire\Sets\Setlist;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -131,4 +132,28 @@ Route::middleware('auth')->group(function () {
     // Report Generator Routes
     Route::get('/reports/generator', [App\Http\Controllers\ReportGeneratorController::class, 'index'])->name('reports.index');
     Route::post('/reports/generate', [App\Http\Controllers\ReportGeneratorController::class, 'generate'])->name('reports.generate');
+
+    Route::prefix('/receipts')->name('receipt.')->group(function () {
+        // Individual receipt routes
+        Route::get('/view/{payment_id}', [App\Http\Controllers\PaymentReceiptController::class, 'showSingleReceipt'])->name('show');
+        Route::get('/print/{payment_id}', [App\Http\Controllers\PaymentReceiptController::class, 'generatePdf'])->name('print');
+
+        // Batch receipt routes
+        Route::get('/batch/view/{batch_number}', [App\Http\Controllers\PaymentReceiptController::class, 'showBatchReceipt'])->name('show.batch');
+        Route::get('/batch/print/{batch_number}', [App\Http\Controllers\PaymentReceiptController::class, 'printBatchReceipt'])->name('print.batch');
+
+        // Order payment list routes
+        Route::get('/list/{oa_id}', [App\Http\Controllers\PaymentReceiptController::class, 'showBatchReceipts'])->name('batch');
+        Route::get('/list/print/{oa_id}', [App\Http\Controllers\PaymentReceiptController::class, 'printBatchReceipts'])->name('batch.print');
+    });
+
+
+// Global Payments List Routes (using Livewire)
+    Route::prefix('/payments')->name('payments.')->group(function () {
+        // The main Livewire component will handle the payment listing
+        Route::get('/', AllPayments::class)->name('all');
+
+        // Keep the print route as a traditional controller method
+        Route::get('/print', [App\Http\Controllers\PaymentReceiptController::class, 'printAllPayments'])->name('print');
+    });
 });

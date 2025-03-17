@@ -24,7 +24,7 @@ class OrderReturn extends Model
 
     public function info()
     {
-        return $this->belongsTo(OrderReturnInfo::class, 'id', 'return_no');
+        return $this->belongsTo(OrderReturnInfo::class, 'return_no', 'id');
     }
 
     public function item()

@@ -9,8 +9,13 @@
                 <div class="col-sm-12 text-center">
                     <h3 class="font-weight-bold">ORDER AGREEMENT</h3>
                     <h7 class="font-weight-bold text-danger">{{ $oa->oa_number }}</h7>
-                    <hr>
                 </div>
+                <div class="col-sm-12 text-end">
+                    <div class="alert alert-info">
+                        <strong>Batch Receipt #:</strong> {{ $batchReceiptNumber }}
+                    </div>
+                </div>
+                <hr>
             </div>
             <div class="row">
                 <!-- Grid column -->
@@ -39,6 +44,7 @@
                 <table class="table table-bordered">
                     <thead class="table-dark">
                         <tr>
+                            <th>Item #</th>
                             <th>Mode of Payment</th>
                             <th>Amount</th>
                             <th>Date of Payment</th>
@@ -54,6 +60,7 @@
                     <tbody>
                         @foreach ($payments as $index => $payment)
                             <tr>
+                                <td class="text-center">{{ $index + 1 }}</td>
                                 <td>
                                     <select class="form-select" wire:model="payments.{{ $index }}.mop">
                                         <option value="">Select</option>
@@ -138,7 +145,7 @@
 
             <div class="d-flex mt-3">
                 <button class="btn btn-primary me-2" wire:click="addPaymentRow">➕ Add Row</button>
-                <button class="btn btn-success" wire:click="savePayments">💾 Save Payments</button>
+                <button class="btn btn-success" wire:click="savePayments">💾 Save Batch Payment</button>
             </div>
         </div>
     </div>

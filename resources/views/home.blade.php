@@ -19,8 +19,9 @@
                 </div>
             </div>
         </div>
-
-        @livewire('home')
+        @can('view dashboard')
+            @livewire('home')
+        @endcan
     </div>
 @endsection
 

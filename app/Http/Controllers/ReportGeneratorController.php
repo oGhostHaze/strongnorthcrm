@@ -209,9 +209,20 @@ class ReportGeneratorController extends Controller
             $q->whereBetween('date', [$startDate, $endDate]);
         });
 
+        if (!empty($additionalCriteria['client'])) {
+            $orderItemsQuery->whereHas('delivery', function($query) use ($additionalCriteria) {
+                $query->where('client', 'LIKE', '%' . $additionalCriteria['client'] . '%');
+            });
+        }
+
         if (!empty($additionalCriteria['status'])) {
             $orderItemsQuery->where('status', $additionalCriteria['status']);
         }
+
+        if (!empty($additionalCriteria['product_id'])) {
+            $orderItemsQuery->where('product_id', $additionalCriteria['product_id']);
+        }
+
 
         $orderItems = $orderItemsQuery->with(['item', 'delivery'])->get();
 
@@ -226,20 +237,21 @@ class ReportGeneratorController extends Controller
 
                 if (!$product) {
                     continue;
+                }else{
+                    $totalQty = $items->sum('item_qty');
+                    $totalAmount = $items->sum('item_total');
+
+                    $result[] = [
+                        'product_id' => $productId,
+                        'code' => $product->code,
+                        'description' => $product->product_description,
+                        'category' => $product->category ? $product->category->category_name : 'N/A',
+                        'quantity_sold' => $totalQty,
+                        'unit_price' => $product->product_price,
+                        'total_amount' => $totalAmount,
+                    ];
                 }
 
-                $totalQty = $items->sum('item_qty');
-                $totalAmount = $items->sum('item_total');
-
-                $result[] = [
-                    'product_id' => $productId,
-                    'code' => $product->code,
-                    'description' => $product->product_description,
-                    'category' => $product->category ? $product->category->category_name : 'N/A',
-                    'quantity_sold' => $totalQty,
-                    'unit_price' => $product->product_price,
-                    'total_amount' => $totalAmount,
-                ];
             }
         }
         // Group by date
@@ -319,6 +331,12 @@ class ReportGeneratorController extends Controller
             $query->where('mop', $additionalCriteria['payment_mode']);
         }
 
+        if (!empty($additionalCriteria['client'])) {
+            $query->whereHas('details', function($query) use ($additionalCriteria) {
+                $query->where('oa_client', 'LIKE', '%' . $additionalCriteria['client'] . '%');
+            });
+        }
+
         $payments = $query->with('details')->get();
 
         $result = [];
@@ -351,6 +369,16 @@ class ReportGeneratorController extends Controller
         $query = OrderReturn::whereHas('info', function($q) use ($startDate, $endDate) {
             $q->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
         });
+
+        if (!empty($additionalCriteria['item_type'])) {
+            $query->where('item_type', $additionalCriteria['item_type']);
+        }
+
+
+        if (!empty($additionalCriteria['product_id'])) {
+            $query->where('product_id', $additionalCriteria['product_id']);
+        }
+
 
         $returns = $query->with(['info', 'item'])->get();
 
@@ -390,6 +418,11 @@ class ReportGeneratorController extends Controller
             $query->whereHas('product', function($q) use ($additionalCriteria) {
                 $q->where('category_id', $additionalCriteria['category_id']);
             });
+        }
+
+
+        if (!empty($additionalCriteria['product_id'])) {
+            $query->where('product_id', $additionalCriteria['product_id']);
         }
 
         $stockins = $query->with(['product', 'user'])->get();

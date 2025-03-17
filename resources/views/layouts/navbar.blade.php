@@ -53,6 +53,9 @@
                                 <a class="dropdown-item" href="{{ route('order.agreements.cs') }}">
                                     <i class="fa-solid fa-file-import"></i> OA from Shows
                                 </a>
+                                <a class="dropdown-item" href="{{ route('payments.all') }}">
+                                    <i class="fa-solid fa-file-excel"></i> Order Payments
+                                </a>
                                 <a class="dropdown-item" href="{{ route('order.delivery.list') }}">
                                     <i class="fa-solid fa-list"></i> Delivery Receipts
                                 </a>
@@ -63,7 +66,7 @@
                         </li>
                     @endcan
 
-                    @can('view-servicing')
+                    {{-- @can('view-servicing')
                         <li class="nav-item dropdown">
                             <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
                                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
@@ -79,7 +82,7 @@
                                 </a>
                             </div>
                         </li>
-                    @endcan
+                    @endcan --}}
 
                     @can('view-merchandise')
                         <li class="nav-item dropdown">

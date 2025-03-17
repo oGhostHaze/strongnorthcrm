@@ -18,8 +18,9 @@ class Viewreturn extends Component
 
     public $rsn;
     public $item_id, $gift_id, $item_qty, $item_remarks, $gift_qty, $gift_remarks, $print_val = false;
+    public $status;
 
-    protected $listeners = ['approve_returns'];
+    protected $listeners = ['approve_returns', 'reject_returns'];
 
     public function render()
     {
@@ -118,17 +119,39 @@ class Viewreturn extends Component
         $this->resetExcept('rsn');
     }
 
-    public function confirm_approval()
+    public function confirm_approval($status)
     {
-        $this->alert('warning', 'Approve Return Slip? Note that after confirmation, return quantity will reflect on product inventory and actions shall be disabled in this return slip.', [
-            'position' => 'center',
-            'showConfirmButton' => true,
-            'confirmButtonText' => 'Confirm',
-            'onConfirmed' => 'approve_returns',
-            'allowOutsideClick' => false,
-            'timer' => null,
-            'toast' => false
-        ]);
+        $this->status = $status;
+
+        if($status == 'Approved'){
+            $this->alert('warning', 'Approve Return Slip? Note that after confirmation, return quantity will reflect on product inventory and actions shall be disabled in this return slip.', [
+                'position' => 'center',
+                'showConfirmButton' => true,
+                'confirmButtonText' => 'Confirm',
+                'onConfirmed' => 'approve_returns',
+                'allowOutsideClick' => false,
+                'timer' => null,
+                'toast' => false
+            ]);
+        }else{
+            $this->alert('warning', 'Reject Return Slip? Note that after confirmation, actions shall be disabled in this return slip.', [
+                'position' => 'center',
+                'showConfirmButton' => true,
+                'confirmButtonText' => 'Confirm',
+                'onConfirmed' => 'reject_returns',
+                'allowOutsideClick' => false,
+                'timer' => null,
+                'toast' => false
+            ]);
+        }
+    }
+
+    public function reject_returns()
+    {
+        $this->rsn->status = 'Rejected';
+        $this->rsn->save();
+
+        $this->alert('success', 'RSN-' . $this->rsn->id . ' rejected!');
     }
 
     public function approve_returns()
