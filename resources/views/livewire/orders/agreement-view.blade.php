@@ -40,7 +40,7 @@
                 <div class="card-body" style="" id='print_div'>
                     <!-- Grid column -->
                     <div class="row">
-                        <div class="col-sm-12 text-center">
+                        <div class="text-center col-sm-12">
                             <h3 class="font-weight-bold">ORDER AGREEMENT</h3>
                             <h7 class="font-weight-bold text-danger">{{ $oa->oa_number }}</h7>
                             <hr>
@@ -48,7 +48,7 @@
                     </div>
                     <div class="row">
                         <!-- Grid column -->
-                        <div class="col-md-6 text-left border-right">
+                        <div class="text-left col-md-6 border-right">
                             <p class="p-0 m-0"><strong>Date: </strong>{{ $oa->oa_date }}</p>
                             <p class="p-0 m-0"><strong>Client: </strong>{{ $oa->oa_client }}</p>
                             <p class="p-0 m-0"><strong>Address: </strong>{{ $oa->oa_address }}</p>
@@ -56,7 +56,7 @@
                         </div>
                         <!-- Grid column -->
                         <!-- Grid column -->
-                        <div class="col-md-6 text-left">
+                        <div class="text-left col-md-6">
                             <p class="p-0 m-0"><strong>Consultant: </strong>{{ $oa->oa_consultant }}</p>
                             <p class="p-0 m-0"><strong>Associate: </strong>{{ $oa->oa_associate }}</p>
                             <p class="p-0 m-0"><strong>Presenter: </strong>{{ $oa->oa_presenter }}</p>
@@ -212,7 +212,7 @@
                         $init = $initial ? $initial->amount : 0;
                         $total = (float) $subtotal + (float) $price_diff;
                     @endphp
-                    <div class="row g-3 px-3 py-5 border">
+                    <div class="px-3 py-5 border row g-3">
                         <div class="col-6 d-flex flex-column">
                             <div class="d-flex">
                                 <span>Delivery Date: {{ $oa->delivery_date }} </span>
@@ -239,7 +239,7 @@
                                 <small>Checks payable only to <span class="fw-bold text-uppercase">StrongNorth
                                         Enterprise OPC</span></small>
                             </p>
-                            <div class="d-flex flex-column justify-content-center pt-5 mt-10 text-center">
+                            <div class="pt-5 mt-10 text-center d-flex flex-column justify-content-center">
                                 <div class="mx-auto">
                                     {{-- @if ($oa->host_signature)
                                         <img src="{{ url('upload/' . $oa->host_signature) }}" class="h-20" alt="Host Signature">
@@ -321,7 +321,7 @@
                         <form class="tab-pane fade" id="new_dr" role="tabpanel" aria-labelledby="new_dr"
                             wire:submit.prevent="new_dr()" wire:ignore.self>
                             <div class="pt-3">
-                                <div class="form-group mb-3">
+                                <div class="mb-3 form-group">
                                     <label class="control-label" for="client">Client <span
                                             class="text-danger">*</span></label>
                                     <div id="ctrl-client-holder" class="">
@@ -329,7 +329,7 @@
                                             placeholder="Enter Client" required="" class="form-control " />
                                     </div>
                                 </div>
-                                <div class="row mb-3">
+                                <div class="mb-3 row">
                                     <div class="form-group col-sm-6">
                                         <label class="control-label" for="address">Address </label>
                                         <div id="ctrl-address-holder" class="">
@@ -345,14 +345,14 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group mb-3">
+                                <div class="mb-3 form-group">
                                     <label class="control-label" for="consultant">Consultant </label>
                                     <div id="ctrl-consultant-holder" class="">
                                         <input id="ctrl-consultant" wire:model.defer="delivery_consultant"
                                             type="text" placeholder="Enter Consultant" class="form-control " />
                                     </div>
                                 </div>
-                                <div class="row mb-3">
+                                <div class="mb-3 row">
                                     <div class="form-group col-sm-6">
                                         <label class="control-label" for="associate">Associate </label>
                                         <div id="ctrl-associate-holder" class="">
@@ -368,7 +368,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row mb-3">
+                                <div class="mb-3 row">
                                     <div class="form-group col-sm-6">
                                         <label class="control-label" for="team_builder">Team Builder </label>
                                         <div id="ctrl-team_builder-holder" class="">
@@ -386,7 +386,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group mb-3">
+                                <div class="mb-3 form-group">
                                     <label class="control-label" for="code">Code <span
                                             class="text-danger">*</span></label>
                                     <div id="ctrl-code-holder" class="">
@@ -416,7 +416,7 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="form-group form-submit-btn-holder text-center mt-3">
+                            <div class="mt-3 text-center form-group form-submit-btn-holder">
                                 <div class="form-ajax-status"></div>
                                 <button class="btn btn-primary" type="submit">
                                     Submit
@@ -473,10 +473,12 @@
                                         <th>
                                             <div class="d-flex justify-content-between">
                                                 Payment History
-                                                <div class="fload-end d-flex justify-content-end">
-                                                    <a href="{{ route('order.agreements.batch-add-payments', ['oa_id' => $oa->oa_id]) }}"
-                                                        target="_blank"
-                                                        class="btn btn-sm btn-primary float-end ms-2">Add Payment</a>
+                                                <div class="float-end d-flex justify-content-end">
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-primary float-end ms-2"
+                                                        data-bs-toggle="modal" data-bs-target="#selectDeliveryModal">
+                                                        Add Payment
+                                                    </button>
                                                 </div>
                                             </div>
                                         </th>
@@ -493,6 +495,9 @@
                                                             class="fw-bold text-primary">{{ number_format($payment->amount, 2) }}</span><br>
                                                         <span
                                                             class="badge text-small bg-secondary">{{ $payment->mop }}</span>
+                                                        @if ($payment->delivery_id)
+                                                            <span class="badge bg-info">Linked to Delivery</span>
+                                                        @endif
                                                         @if ($payment->remarks)
                                                             <br>
                                                             <p>{{ $payment->remarks }}</p>
@@ -501,7 +506,12 @@
                                                     <div class="text-end">
                                                         <span>{{ $payment->date_of_payment }}</span><br>
                                                         <span
-                                                            class="badge text-small @if ($payment->status == 'Unposted') bg-secondary @elseif($payment->status == 'Posted') bg-primary @elseif($payment->status == 'Commissioned') bg-success @elseif($payment->status == 'On Hold') bg-danger @endif">{{ $payment->status }}</span>
+                                                            class="badge text-small @if ($payment->status == 'Unposted') bg-secondary @elseif($payment->status == 'Posted') bg-primary @elseif($payment->status == 'Commissioned') bg-success @elseif($payment->status == 'Processed') bg-info @elseif($payment->status == 'On Hold') bg-danger @endif">{{ $payment->status }}</span>
+                                                        @if ($payment->batch_receipt_number)
+                                                            <br>
+                                                            <span
+                                                                class="small text-secondary">{{ $payment->getFormattedReceiptNumber() }}</span>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </td>
@@ -715,6 +725,39 @@
         </div>
     </div>
     {{-- Update Payment --}}
+
+    {{-- Select Delivery Modal for Payment --}}
+    <div class="modal fade" id="selectDeliveryModal" tabindex="-1" aria-labelledby="selectDeliveryModalLabel"
+        aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="selectDeliveryModalLabel">Select Delivery for Payment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Please select a delivery to associate with these payments:</p>
+
+                    <div class="mb-3 form-group">
+                        <label for="selected_delivery">Delivery Receipt:</label>
+                        <select id="selected_delivery" class="form-select" wire:model="selected_delivery_id">
+                            <option value="">-- New payment without delivery --</option>
+                            @foreach ($oa->drs()->orderByDesc('dr_count')->get() as $dr)
+                                <option value="{{ $dr->info_id }}">
+                                    {{ $dr->transno }} [{{ $dr->code }}] - {{ $dr->date }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" wire:click="proceedToPayments">Proceed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- End Select Delivery Modal --}}
 </div>
 
 @push('scripts')

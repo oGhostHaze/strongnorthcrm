@@ -27,33 +27,33 @@
                 <div class="card-body" id="print_div">
                     <section class="page1">
                         <!-- Grid column -->
-                        <div class="row mb-1">
-                            <div class="col-3 ps-4 mb-0">
+                        <div class="mb-1 row">
+                            <div class="mb-0 col-3 ps-4">
                                 <img src="{{ url('img/str.png') }}" alt="" class="img-fluid"
                                     style="max-width: 60%">
                             </div>
-                            <div class="col-6 text-center">
-                                <h3 class="fw-bold my-0">StrongNorth Enterprise OPC</h3>
-                                <p class="small p-0 my-0">(Independent Authorized Dealer)</p>
-                                <p class="small p-0 my-0">9-10 VYV Bldg., Valdez Center, Brgy 1 San Nicolas, Ilocos
+                            <div class="text-center col-6">
+                                <h3 class="my-0 fw-bold">StrongNorth Enterprise OPC</h3>
+                                <p class="p-0 my-0 small">(Independent Authorized Dealer)</p>
+                                <p class="p-0 my-0 small">9-10 VYV Bldg., Valdez Center, Brgy 1 San Nicolas, Ilocos
                                     Norte</p>
-                                <p class="small p-0 my-0">Contact: 0917-891-9180</p>
+                                <p class="p-0 my-0 small">Contact: 0917-891-9180</p>
                             </div>
-                            <div class="col-3 pe-4 mb-0 text-end">
+                            <div class="mb-0 col-3 pe-4 text-end">
                                 <img src="{{ url('img/right.png') }}" alt="" class="img-fluid"
                                     style="max-width: 60%">
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-sm-12 text-center">
-                                <h3 class="fw-bold my-0 py-0">DELIVERY RECEIPT</h3>
-                                <h5 class="h5 text-danger my-0 py-0">{{ $delivery->transno }}</h5>
+                            <div class="text-center col-sm-12">
+                                <h3 class="py-0 my-0 fw-bold">DELIVERY RECEIPT</h3>
+                                <h5 class="py-0 my-0 h5 text-danger">{{ $delivery->transno }}</h5>
                                 <hr class="my-1">
                             </div>
                         </div>
                         <div class="row">
                             <!-- Grid column -->
-                            <div class="col-6 text-left border-right">
+                            <div class="text-left col-6 border-right">
                                 <p class="p-0 m-0"><strong>Date: </strong>{{ $delivery->date }}</p>
                                 <p class="p-0 m-0"><strong>Client: </strong>{{ $delivery->client }}</p>
                                 <p class="p-0 m-0"><strong>Address: </strong>{{ $delivery->address }}</p>
@@ -62,7 +62,7 @@
                             </div>
                             <!-- Grid column -->
                             <!-- Grid column -->
-                            <div class="col-6 text-left">
+                            <div class="text-left col-6">
                                 <p class="p-0 m-0"><strong>Consultant: </strong>{{ $delivery->consultant }}</p>
                                 <p class="p-0 m-0"><strong>Associate: </strong>{{ $delivery->associate }}</p>
                                 <p class="p-0 m-0"><strong>Presenter: </strong>{{ $delivery->presenter }}</p>
@@ -73,7 +73,7 @@
                         </div>
                         <div class="row">
                             <font size="2" class="mt-0">
-                                <table class="table table-sm table-hover table-bordered mb-0">
+                                <table class="table mb-0 table-sm table-hover table-bordered">
                                     <thead class="bg-light">
                                         <tr>
                                             <th class="text-center">Quantity</th>
@@ -159,7 +159,7 @@
                                                 </tr>
                                             </tfoot>
                                         </table>
-                                        <table class="table table-bordered table-sm m-0">
+                                        <table class="table m-0 table-bordered table-sm">
                                             <tbody>
                                                 <tr>
                                                     <td class="text-center" width="25%">
@@ -177,7 +177,7 @@
                                                         <p class="text-left"><strong>Date Received: </strong></p></br></br>
                                                         <hr class="py-0 my-0">
                                                     </td>
-                                                    <td class="text-center text-wrap text-center" width="25%">
+                                                    <td class="text-center text-wrap" width="25%">
                                                         <p><strong>Received in good order and condition by: </strong></p>
                                                         </br></br>
                                                         <hr class="py-0 my-0"><span class="py-0 my-0 font-small">Customer
@@ -186,7 +186,7 @@
                                                 </tr>
                                             </tbody>
                                         </table>
-                                        <table class="table table-bordered table-sm m-0">
+                                        <table class="table m-0 table-bordered table-sm">
                                             <thead>
                                                 <tr class="low">
                                                     <th class="text-center fw-bold">PREPARED BY:</th>
@@ -227,33 +227,33 @@
                             @if ($print_val)
                                 <section class="page2">
                                     <!-- Grid column -->
-                                    <div class="row mb-1">
-                                        <div class="col-3 ps-4 mb-0">
+                                    <div class="mb-1 row">
+                                        <div class="mb-0 col-3 ps-4">
                                             <img src="{{ url('img/str.png') }}" alt="" class="img-fluid"
                                                 style="max-width: 60%">
                                         </div>
-                                        <div class="col-6 text-center">
-                                            <h3 class="fw-bold my-0">StrongNorth Enterprise OPC</h3>
-                                            <p class="small p-0 my-0">(Independent Authorized Dealer)</p>
-                                            <p class="small p-0 my-0">9-10 VYV Bldg., Valdez Center, Brgy 1 San Nicolas, Ilocos
+                                        <div class="text-center col-6">
+                                            <h3 class="my-0 fw-bold">StrongNorth Enterprise OPC</h3>
+                                            <p class="p-0 my-0 small">(Independent Authorized Dealer)</p>
+                                            <p class="p-0 my-0 small">9-10 VYV Bldg., Valdez Center, Brgy 1 San Nicolas, Ilocos
                                                 Norte</p>
-                                            <p class="small p-0 my-0">Contact: 0917-891-9180</p>
+                                            <p class="p-0 my-0 small">Contact: 0917-891-9180</p>
                                         </div>
-                                        <div class="col-3 pe-4 mb-0 text-end">
+                                        <div class="mb-0 col-3 pe-4 text-end">
                                             <img src="{{ url('img/right.png') }}" alt="" class="img-fluid"
                                                 style="max-width: 60%">
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-sm-12 text-center">
-                                            <h3 class="fw-bold my-0 py-0">DELIVERY RECEIPT</h3>
-                                            <h5 class="h5 text-danger my-0 py-0">{{ $delivery->transno }}</h5>
+                                        <div class="text-center col-sm-12">
+                                            <h3 class="py-0 my-0 fw-bold">DELIVERY RECEIPT</h3>
+                                            <h5 class="py-0 my-0 h5 text-danger">{{ $delivery->transno }}</h5>
                                             <hr class="my-1">
                                         </div>
                                     </div>
                                     <div class="row">
                                         <!-- Grid column -->
-                                        <div class="col-6 text-left border-right">
+                                        <div class="text-left col-6 border-right">
                                             <p class="p-0 m-0"><strong>Date: </strong>{{ $delivery->date }}</p>
                                             <p class="p-0 m-0"><strong>Client: </strong>{{ $delivery->client }}</p>
                                             <p class="p-0 m-0"><strong>Address: </strong>{{ $delivery->address }}</p>
@@ -262,7 +262,7 @@
                                         </div>
                                         <!-- Grid column -->
                                         <!-- Grid column -->
-                                        <div class="col-6 text-left">
+                                        <div class="text-left col-6">
                                             <p class="p-0 m-0"><strong>Consultant: </strong>{{ $delivery->consultant }}</p>
                                             <p class="p-0 m-0"><strong>Associate: </strong>{{ $delivery->associate }}</p>
                                             <p class="p-0 m-0"><strong>Presenter: </strong>{{ $delivery->presenter }}</p>
@@ -273,7 +273,7 @@
                                     </div>
                                     <div class="row">
                                         <font size="2" class="mt-0">
-                                            <table class="table table-sm table-hover table-bordered mb-0">
+                                            <table class="table mb-0 table-sm table-hover table-bordered">
                                                 <thead class="bg-light">
                                                     <tr>
                                                         <th class="text-center">Quantity</th>
@@ -347,7 +347,7 @@
                                                     </tr>
                                                 </tfoot>
                                             </table>
-                                            <table class="table table-bordered table-sm m-0">
+                                            <table class="table m-0 table-bordered table-sm">
                                                 <tbody>
                                                     <tr>
                                                         <td class="text-center" width="25%">
@@ -365,7 +365,7 @@
                                                             <p class="text-left"><strong>Date Received: </strong></p></br></br>
                                                             <hr class="py-0 my-0">
                                                         </td>
-                                                        <td class="text-center text-wrap text-center" width="25%">
+                                                        <td class="text-center text-wrap" width="25%">
                                                             <p><strong>Received in good order and condition by: </strong></p>
                                                             </br></br>
                                                             <hr class="py-0 my-0"><span class="py-0 my-0 font-small">Customer
@@ -374,7 +374,7 @@
                                                     </tr>
                                                 </tbody>
                                             </table>
-                                            <table class="table table-bordered table-sm m-0">
+                                            <table class="table m-0 table-bordered table-sm">
                                                 <thead>
                                                     <tr class="low">
                                                         <th class="text-center fw-bold">PREPARED BY:</th>
@@ -414,33 +414,33 @@
                                 </section>
                                 <section class="page3">
                                     <!-- Grid column -->
-                                    <div class="row mb-1">
-                                        <div class="col-3 ps-4 mb-0">
+                                    <div class="mb-1 row">
+                                        <div class="mb-0 col-3 ps-4">
                                             <img src="{{ url('img/str.png') }}" alt="" class="img-fluid"
                                                 style="max-width: 60%">
                                         </div>
-                                        <div class="col-6 text-center">
-                                            <h3 class="fw-bold my-0">StrongNorth Enterprise OPC</h3>
-                                            <p class="small p-0 my-0">(Independent Authorized Dealer)</p>
-                                            <p class="small p-0 my-0">9-10 VYV Bldg., Valdez Center, Brgy 1 San Nicolas, Ilocos
+                                        <div class="text-center col-6">
+                                            <h3 class="my-0 fw-bold">StrongNorth Enterprise OPC</h3>
+                                            <p class="p-0 my-0 small">(Independent Authorized Dealer)</p>
+                                            <p class="p-0 my-0 small">9-10 VYV Bldg., Valdez Center, Brgy 1 San Nicolas, Ilocos
                                                 Norte</p>
-                                            <p class="small p-0 my-0">Contact: 0917-891-9180</p>
+                                            <p class="p-0 my-0 small">Contact: 0917-891-9180</p>
                                         </div>
-                                        <div class="col-3 pe-4 mb-0 text-end">
+                                        <div class="mb-0 col-3 pe-4 text-end">
                                             <img src="{{ url('img/right.png') }}" alt="" class="img-fluid"
                                                 style="max-width: 60%">
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-sm-12 text-center">
-                                            <h3 class="fw-bold my-0 py-0">DELIVERY RECEIPT</h3>
-                                            <h5 class="h5 text-danger my-0 py-0">{{ $delivery->transno }}</h5>
+                                        <div class="text-center col-sm-12">
+                                            <h3 class="py-0 my-0 fw-bold">DELIVERY RECEIPT</h3>
+                                            <h5 class="py-0 my-0 h5 text-danger">{{ $delivery->transno }}</h5>
                                             <hr class="my-1">
                                         </div>
                                     </div>
                                     <div class="row">
                                         <!-- Grid column -->
-                                        <div class="col-6 text-left border-right">
+                                        <div class="text-left col-6 border-right">
                                             <p class="p-0 m-0"><strong>Date: </strong>{{ $delivery->date }}</p>
                                             <p class="p-0 m-0"><strong>Client: </strong>{{ $delivery->client }}</p>
                                             <p class="p-0 m-0"><strong>Address: </strong>{{ $delivery->address }}</p>
@@ -449,7 +449,7 @@
                                         </div>
                                         <!-- Grid column -->
                                         <!-- Grid column -->
-                                        <div class="col-6 text-left">
+                                        <div class="text-left col-6">
                                             <p class="p-0 m-0"><strong>Consultant: </strong>{{ $delivery->consultant }}</p>
                                             <p class="p-0 m-0"><strong>Associate: </strong>{{ $delivery->associate }}</p>
                                             <p class="p-0 m-0"><strong>Presenter: </strong>{{ $delivery->presenter }}</p>
@@ -460,7 +460,7 @@
                                     </div>
                                     <div class="row">
                                         <font size="2" class="mt-0">
-                                            <table class="table table-sm table-hover table-bordered mb-0">
+                                            <table class="table mb-0 table-sm table-hover table-bordered">
                                                 <thead class="bg-light">
                                                     <tr>
                                                         <th class="text-center">Quantity</th>
@@ -534,7 +534,7 @@
                                                     </tr>
                                                 </tfoot>
                                             </table>
-                                            <table class="table table-bordered table-sm m-0">
+                                            <table class="table m-0 table-bordered table-sm">
                                                 <tbody>
                                                     <tr>
                                                         <td class="text-center" width="25%">
@@ -552,7 +552,7 @@
                                                             <p class="text-left"><strong>Date Received: </strong></p></br></br>
                                                             <hr class="py-0 my-0">
                                                         </td>
-                                                        <td class="text-center text-wrap text-center" width="25%">
+                                                        <td class="text-center text-wrap" width="25%">
                                                             <p><strong>Received in good order and condition by: </strong></p>
                                                             </br></br>
                                                             <hr class="py-0 my-0"><span class="py-0 my-0 font-small">Customer
@@ -561,7 +561,7 @@
                                                     </tr>
                                                 </tbody>
                                             </table>
-                                            <table class="table table-bordered table-sm m-0">
+                                            <table class="table m-0 table-bordered table-sm">
                                                 <thead>
                                                     <tr class="low">
                                                         <th class="text-center fw-bold">PREPARED BY:</th>
@@ -601,33 +601,33 @@
                                 </section>
                                 <section class="page4">
                                     <!-- Grid column -->
-                                    <div class="row mb-1">
-                                        <div class="col-3 ps-4 mb-0">
+                                    <div class="mb-1 row">
+                                        <div class="mb-0 col-3 ps-4">
                                             <img src="{{ url('img/str.png') }}" alt="" class="img-fluid"
                                                 style="max-width: 60%">
                                         </div>
-                                        <div class="col-6 text-center">
-                                            <h3 class="fw-bold my-0">StrongNorth Enterprise OPC</h3>
-                                            <p class="small p-0 my-0">(Independent Authorized Dealer)</p>
-                                            <p class="small p-0 my-0">9-10 VYV Bldg., Valdez Center, Brgy 1 San Nicolas, Ilocos
+                                        <div class="text-center col-6">
+                                            <h3 class="my-0 fw-bold">StrongNorth Enterprise OPC</h3>
+                                            <p class="p-0 my-0 small">(Independent Authorized Dealer)</p>
+                                            <p class="p-0 my-0 small">9-10 VYV Bldg., Valdez Center, Brgy 1 San Nicolas, Ilocos
                                                 Norte</p>
-                                            <p class="small p-0 my-0">Contact: 0917-891-9180</p>
+                                            <p class="p-0 my-0 small">Contact: 0917-891-9180</p>
                                         </div>
-                                        <div class="col-3 pe-4 mb-0 text-end">
+                                        <div class="mb-0 col-3 pe-4 text-end">
                                             <img src="{{ url('img/right.png') }}" alt="" class="img-fluid"
                                                 style="max-width: 60%">
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-sm-12 text-center">
-                                            <h3 class="fw-bold my-0 py-0">DELIVERY RECEIPT</h3>
-                                            <h5 class="h5 text-danger my-0 py-0">{{ $delivery->transno }}</h5>
+                                        <div class="text-center col-sm-12">
+                                            <h3 class="py-0 my-0 fw-bold">DELIVERY RECEIPT</h3>
+                                            <h5 class="py-0 my-0 h5 text-danger">{{ $delivery->transno }}</h5>
                                             <hr class="my-1">
                                         </div>
                                     </div>
                                     <div class="row">
                                         <!-- Grid column -->
-                                        <div class="col-6 text-left border-right">
+                                        <div class="text-left col-6 border-right">
                                             <p class="p-0 m-0"><strong>Date: </strong>{{ $delivery->date }}</p>
                                             <p class="p-0 m-0"><strong>Client: </strong>{{ $delivery->client }}</p>
                                             <p class="p-0 m-0"><strong>Address: </strong>{{ $delivery->address }}</p>
@@ -636,7 +636,7 @@
                                         </div>
                                         <!-- Grid column -->
                                         <!-- Grid column -->
-                                        <div class="col-6 text-left">
+                                        <div class="text-left col-6">
                                             <p class="p-0 m-0"><strong>Consultant: </strong>{{ $delivery->consultant }}</p>
                                             <p class="p-0 m-0"><strong>Associate: </strong>{{ $delivery->associate }}</p>
                                             <p class="p-0 m-0"><strong>Presenter: </strong>{{ $delivery->presenter }}</p>
@@ -647,7 +647,7 @@
                                     </div>
                                     <div class="row">
                                         <font size="2" class="mt-0">
-                                            <table class="table table-sm table-hover table-bordered mb-0">
+                                            <table class="table mb-0 table-sm table-hover table-bordered">
                                                 <thead class="bg-light">
                                                     <tr>
                                                         <th class="text-center">Quantity</th>
@@ -721,7 +721,7 @@
                                                     </tr>
                                                 </tfoot>
                                             </table>
-                                            <table class="table table-bordered table-sm m-0">
+                                            <table class="table m-0 table-bordered table-sm">
                                                 <tbody>
                                                     <tr>
                                                         <td class="text-center" width="25%">
@@ -739,7 +739,7 @@
                                                             <p class="text-left"><strong>Date Received: </strong></p></br></br>
                                                             <hr class="py-0 my-0">
                                                         </td>
-                                                        <td class="text-center text-wrap text-center" width="25%">
+                                                        <td class="text-center text-wrap" width="25%">
                                                             <p><strong>Received in good order and condition by: </strong></p>
                                                             </br></br>
                                                             <hr class="py-0 my-0"><span class="py-0 my-0 font-small">Customer
@@ -748,7 +748,7 @@
                                                     </tr>
                                                 </tbody>
                                             </table>
-                                            <table class="table table-bordered table-sm m-0">
+                                            <table class="table m-0 table-bordered table-sm">
                                                 <thead>
                                                     <tr class="low">
                                                         <th class="text-center fw-bold">PREPARED BY:</th>

@@ -7,17 +7,27 @@ use Carbon\Carbon;
 use App\Models\OrderPaymentHistory;
 use App\Models\ModeOfPayment;
 use App\Models\Order;
+use App\Models\Delivery;
 
 class BatchAddPayments extends Component
 {
     public $payments = [], $oa = [];
     public $oa_id;
+    public $delivery_id; // For associating payments with a specific delivery
+    public $delivery; // To store the selected delivery object
     public $batchReceiptNumber;
 
-    public function mount($oa_id)
+    public function mount($oa_id, $delivery_id = null)
     {
         $this->oa_id = $oa_id;
         $this->oa = Order::find($oa_id);
+        $this->delivery_id = $delivery_id;
+
+        // Load delivery info if provided
+        if ($this->delivery_id) {
+            $this->delivery = Delivery::find($this->delivery_id);
+        }
+
         $this->batchReceiptNumber = $this->generateBatchReceiptNumber();
         $this->addPaymentRow();
     }
@@ -58,7 +68,8 @@ class BatchAddPayments extends Component
     public function addPaymentRow()
     {
         $this->payments[] = [
-            'oa_id' => '',
+            'oa_id' => $this->oa_id,
+            'delivery_id' => $this->delivery_id, // Set delivery_id from selected delivery
             'mop' => '',
             'amount' => '',
             'date_of_payment' => Carbon::now()->format('Y-m-d'),
@@ -103,6 +114,7 @@ class BatchAddPayments extends Component
 
         foreach ($this->payments as $index => $payment) {
             $payment['oa_id'] = $this->oa_id;
+            $payment['delivery_id'] = $this->delivery_id; // Ensure delivery_id is set
 
             // Assign the same batch receipt number to all payments in this batch
             $payment['batch_receipt_number'] = $this->batchReceiptNumber;
@@ -116,8 +128,8 @@ class BatchAddPayments extends Component
             $createdPayments[] = $createdPayment->id;
         }
 
-        // Redirect to the receipt batch view
-        return redirect()->route('receipt.batch', ['oa_id' => $this->oa_id])
+        // Redirect to the order view
+        return redirect()->route('order.agreements.view', ['oa' => $this->oa])
             ->with('success', 'Batch payment with Receipt #' . $this->batchReceiptNumber . ' has been created successfully.');
     }
 

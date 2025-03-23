@@ -18,6 +18,7 @@ use App\Models\OrderReturnInfo;
 use App\Models\Product;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
 
@@ -25,7 +26,7 @@ class AgreementView extends Component
 {
     use LivewireAlert;
 
-    protected $listeners = ['return_item', 'return_gift', 'remove_item', 'remove_gift', 'new_payment'];
+    protected $listeners = ['return_item', 'return_gift', 'remove_item', 'remove_gift', 'new_payment', 'clear_payment'];
 
     public $oa;
     public $item_id, $item_qty, $item_remarks;
@@ -37,6 +38,7 @@ class AgreementView extends Component
     public $remarks;
 
     public $rsn_dr;
+    public $selected_delivery_id = null;
 
     public function render()
     {
@@ -300,68 +302,123 @@ class AgreementView extends Component
         }
     }
 
+    /**
+     * Clear payments associated with an order
+     */
+    public function clear_payment()
+    {
+        try {
+            DB::beginTransaction();
+
+            // Get all payments for this order
+            $payments = OrderPaymentHistory::where('oa_id', $this->oa->oa_id)->get();
+
+            // Clear the payments or mark them as processed
+            foreach ($payments as $payment) {
+                // Option 1: Delete the payments
+                // $payment->delete();
+
+                // Option 2: Update status (better for audit trails)
+                $payment->status = 'Processed';
+                $payment->save();
+            }
+
+            DB::commit();
+            $this->alert('success', 'Payments cleared successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->alert('error', 'Failed to clear payments: ' . $e->getMessage());
+        }
+    }
+
     public function new_dr()
     {
         $this->validate(['delivery_code' => 'required']);
-        $year = date('Y');
-        $month = date('m');
-        $day = date('d');
-        $date = $year . $month . $day;
-        $increment = (int)Delivery::count() + 1;
-        $transno = "SGH" . $date . "-" . $increment;
-        $oa_id   = $this->oa->oa_id;
-        $existing_dr = $this->oa->drs()->count();
 
-        $new_dr = Delivery::create([
-            'date' => date('Y-m-d'),
-            'transno' => $transno,
-            'client' => $this->delivery_client,
-            'address' => $this->delivery_address,
-            'contact' => $this->delivery_contact,
-            'consultant' => $this->delivery_consultant,
-            'associate' => $this->delivery_assoc,
-            'presenter' => $this->delivery_presenter,
-            'team_builder' => $this->delivery_tb,
-            'distributor' => $this->delivery_distributor,
-            'code' => $this->delivery_code,
-            'dr_count' => $increment,
-            'oa_no' => $oa_id,
-            'price_diff' => $existing_dr ? 0 : $this->oa->oa_price_diff,
-            'price_override' => $existing_dr ? 0 : $this->oa->oa_price_override,
-        ]);
+        try {
+            DB::beginTransaction();
 
-        $oa_items = $this->oa->items()->where('item_qty', '>', '0')->get();
-        foreach ($oa_items as $oa_item) {
-            $item_total = $oa_item->item_total;
-            $status     = $oa_item->status;
-            if ($status == "To Follow") {
-                $item_total = '0';
+            // First handle the payments - mark them as processed or move them
+            $this->clear_payment();
+
+            // Now create the delivery
+            $year = date('Y');
+            $month = date('m');
+            $day = date('d');
+            $date = $year . $month . $day;
+            $increment = (int)Delivery::count() + 1;
+            $transno = "SGH" . $date . "-" . $increment;
+            $oa_id = $this->oa->oa_id;
+            $existing_dr = $this->oa->drs()->count();
+
+            $new_dr = Delivery::create([
+                'date' => date('Y-m-d'),
+                'transno' => $transno,
+                'client' => $this->delivery_client,
+                'address' => $this->delivery_address,
+                'contact' => $this->delivery_contact,
+                'consultant' => $this->delivery_consultant,
+                'associate' => $this->delivery_assoc,
+                'presenter' => $this->delivery_presenter,
+                'team_builder' => $this->delivery_tb,
+                'distributor' => $this->delivery_distributor,
+                'code' => $this->delivery_code,
+                'dr_count' => $increment,
+                'oa_no' => $oa_id,
+                'price_diff' => $existing_dr ? 0 : $this->oa->oa_price_diff,
+                'price_override' => $existing_dr ? 0 : $this->oa->oa_price_override,
+            ]);
+
+            // Associate the payments with the new delivery
+            $payments = OrderPaymentHistory::where('oa_id', $this->oa->oa_id)
+                        ->where('status', 'Processed')
+                        ->where('delivery_id', null)
+                        ->get();
+
+            foreach ($payments as $payment) {
+                $payment->delivery_id = $new_dr->info_id;
+                $payment->save();
             }
-            $status = "To Follow";
-            DeliveryItem::create([
-                'transno' => $transno,
-                'product_id' => $oa_item->product_id,
-                'item_price' => $oa_item->item_price,
-                'item_qty' => $oa_item->item_qty,
-                'item_total' => $existing_dr ? 0 : $item_total,
-                'tblset_id' => $oa_item->tblset_id,
-                'status' => $status
-            ]);
-        }
 
-        $oa_gifts = $this->oa->gifts()->where('item_qty', '>', '0')->get();
-        foreach ($oa_gifts as $oa_gift) {
-            DeliveryGift::create([
-                'transno' => $transno,
-                'product_id' => $oa_gift->product_id,
-                'item_price' => $oa_gift->item_price,
-                'item_qty' => $oa_gift->item_qty,
-                'item_total' => 0,
-                'status' => "To Follow",
-                'type' => $oa_gift->type
-            ]);
+            $oa_items = $this->oa->items()->where('item_qty', '>', '0')->get();
+            foreach ($oa_items as $oa_item) {
+                $item_total = $oa_item->item_total;
+                $status = $oa_item->status;
+                if ($status == "To Follow") {
+                    $item_total = '0';
+                }
+                $status = "To Follow";
+                DeliveryItem::create([
+                    'transno' => $transno,
+                    'product_id' => $oa_item->product_id,
+                    'item_price' => $oa_item->item_price,
+                    'item_qty' => $oa_item->item_qty,
+                    'item_total' => $existing_dr ? 0 : $item_total,
+                    'tblset_id' => $oa_item->tblset_id,
+                    'status' => $status
+                ]);
+            }
+
+            $oa_gifts = $this->oa->gifts()->where('item_qty', '>', '0')->get();
+            foreach ($oa_gifts as $oa_gift) {
+                DeliveryGift::create([
+                    'transno' => $transno,
+                    'product_id' => $oa_gift->product_id,
+                    'item_price' => $oa_gift->item_price,
+                    'item_qty' => $oa_gift->item_qty,
+                    'item_total' => 0,
+                    'status' => "To Follow",
+                    'type' => $oa_gift->type
+                ]);
+            }
+
+            DB::commit();
+            $this->view_dr($transno);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->alert('error', 'Failed to create delivery: ' . $e->getMessage());
         }
-        $this->view_dr($transno);
     }
 
     public function view_dr($transno)
@@ -430,10 +487,34 @@ class AgreementView extends Component
 
         $payment = OrderPaymentHistory::find($this->payment_id);
         $payment->status = $this->status;
+        $payment->remarks = $this->remarks;
         $payment->save();
 
-        $this->reset('status', 'payment_id');
+        $this->reset('status', 'payment_id', 'remarks');
 
         $this->alert('success', 'Payment Updated!');
+    }
+
+       /**
+     * Proceed to the payments page with selected delivery
+     */
+    public function proceedToPayments()
+    {
+        // Validate the selection
+        $this->validate([
+            'selected_delivery_id' => 'nullable', // Can be null for payments without delivery
+        ]);
+
+        // Redirect to the batch payments page with the selected delivery
+        if ($this->selected_delivery_id) {
+            return redirect()->route('order.agreements.batch-add-payments', [
+                'oa_id' => $this->oa->oa_id,
+                'delivery_id' => $this->selected_delivery_id
+            ]);
+        } else {
+            return redirect()->route('order.agreements.batch-add-payments', [
+                'oa_id' => $this->oa->oa_id
+            ]);
+        }
     }
 }

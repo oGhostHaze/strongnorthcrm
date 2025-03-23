@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Order;
+use App\Models\Delivery;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ModeOfPayment;
@@ -18,6 +19,7 @@ class OrderPaymentHistory extends Model
         'receipt_number',       // Full receipt number including sequence
         'receipt_sequence',     // Sequence within the batch
         'oa_id',
+        'delivery_id',          // New field to link to delivery
         'mop',                  // Mode of Payment: ModeOfPayment::all(); saves the legend column
         'amount',
         'date_of_payment',
@@ -32,6 +34,11 @@ class OrderPaymentHistory extends Model
     public function details()
     {
         return $this->belongsTo(Order::class, 'oa_id', 'oa_id');
+    }
+
+    public function delivery()
+    {
+        return $this->belongsTo(Delivery::class, 'delivery_id', 'info_id');
     }
 
     /**

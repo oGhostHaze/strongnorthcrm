@@ -1,6 +1,6 @@
 <div>
     <div class="card">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <div class="text-white card-header bg-primary d-flex justify-content-between align-items-center">
             <h4 class="mb-0">All Payment Records</h4>
             <div>
                 <button wire:click="export" class="btn btn-outline-light">
@@ -43,11 +43,20 @@
                         </select>
                     </div>
                     <div class="col-md-2">
+                        <label for="delivery_id" class="form-label">Delivery</label>
+                        <select class="form-select" id="delivery_id" wire:model.defer="deliveryId">
+                            <option value="">All Deliveries</option>
+                            @foreach ($deliveries as $delivery)
+                                <option value="{{ $delivery->info_id }}">{{ $delivery->transno }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
                         <label for="search" class="form-label">Search</label>
                         <input type="text" class="form-control" id="search" wire:model.defer="search"
                             placeholder="Receipt #, OA, Client...">
                     </div>
-                    <div class="col-md-2 d-flex align-items-end">
+                    <div class="mt-2 col-md-12 d-flex">
                         <button type="button" wire:click="applyFilters" class="btn btn-primary me-2">Filter</button>
                         <button type="button" wire:click="resetFilters" class="btn btn-secondary">Reset</button>
                     </div>
@@ -55,7 +64,7 @@
             </div>
 
             <!-- Loading indicator -->
-            <div wire:loading class="text-center my-3">
+            <div wire:loading class="my-3 text-center">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
@@ -63,35 +72,35 @@
             </div>
 
             <!-- Summary Cards -->
-            <div class="row mb-4" wire:loading.class="opacity-50">
+            <div class="mb-4 row" wire:loading.class="opacity-50">
                 <div class="col-md-3">
-                    <div class="card bg-success text-white">
-                        <div class="card-body py-2">
-                            <h6 class="card-title mb-0">Posted Payments</h6>
+                    <div class="text-white card bg-success">
+                        <div class="py-2 card-body">
+                            <h6 class="mb-0 card-title">Posted Payments</h6>
                             <h3 class="card-text">₱{{ number_format($totalPosted, 2) }}</h3>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="card bg-warning text-dark">
-                        <div class="card-body py-2">
-                            <h6 class="card-title mb-0">Unposted Payments</h6>
+                        <div class="py-2 card-body">
+                            <h6 class="mb-0 card-title">Unposted Payments</h6>
                             <h3 class="card-text">₱{{ number_format($totalUnposted, 2) }}</h3>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card bg-info text-white">
-                        <div class="card-body py-2">
-                            <h6 class="card-title mb-0">On-hold Payments</h6>
+                    <div class="text-white card bg-info">
+                        <div class="py-2 card-body">
+                            <h6 class="mb-0 card-title">On-hold Payments</h6>
                             <h3 class="card-text">₱{{ number_format($totalOnHold, 2) }}</h3>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card bg-danger text-white">
-                        <div class="card-body py-2">
-                            <h6 class="card-title mb-0">Voided Payments</h6>
+                    <div class="text-white card bg-danger">
+                        <div class="py-2 card-body">
+                            <h6 class="mb-0 card-title">Voided Payments</h6>
                             <h3 class="card-text">₱{{ number_format($totalVoided, 2) }}</h3>
                         </div>
                     </div>
@@ -107,6 +116,7 @@
                             <th>Date</th>
                             <th>Order #</th>
                             <th>Client</th>
+                            <th>Delivery</th>
                             <th>Payment Mode</th>
                             <th>Reference #</th>
                             <th>Amount</th>
@@ -138,6 +148,18 @@
                                     </a>
                                 </td>
                                 <td>{{ $payment->details->oa_client }}</td>
+                                <td>
+                                    @if ($payment->delivery)
+                                        <a
+                                            href="{{ route('order.delivery.view', ['transno' => $payment->delivery->transno]) }}">
+                                            {{ $payment->delivery->transno }}
+                                        </a>
+                                        <br><small
+                                            class="text-muted">{{ date('M d, Y', strtotime($payment->delivery->date)) }}</small>
+                                    @else
+                                        <span class="text-muted">No delivery</span>
+                                    @endif
+                                </td>
                                 <td>{{ $payment->mop }}</td>
                                 <td>{{ $payment->reference_no }}</td>
                                 <td>₱{{ number_format($payment->amount, 2) }}</td>
@@ -186,7 +208,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center">No payment records found</td>
+                                <td colspan="10" class="text-center">No payment records found</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -194,7 +216,7 @@
             </div>
 
             <!-- Pagination -->
-            <div class="d-flex justify-content-center mt-4">
+            <div class="mt-4 d-flex justify-content-center">
                 {{ $payments->links() }}
             </div>
         </div>

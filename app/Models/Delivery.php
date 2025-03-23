@@ -44,4 +44,29 @@ class Delivery extends Model
     {
         return $this->hasMany(DeliveryGift::class, 'transno', 'transno');
     }
+
+    public function payments()
+    {
+        return $this->hasMany(OrderPaymentHistory::class, 'delivery_id', 'info_id');
+    }
+
+    /**
+     * Get the total amount of payments associated with this delivery
+     *
+     * @return float
+     */
+    public function getTotalPayments()
+    {
+        return $this->payments()->sum('amount');
+    }
+
+    /**
+     * Check if this delivery has any payments
+     *
+     * @return bool
+     */
+    public function hasPayments()
+    {
+        return $this->payments()->count() > 0;
+    }
 }

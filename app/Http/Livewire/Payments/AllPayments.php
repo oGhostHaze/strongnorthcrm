@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Payments;
 
 use Livewire\Component;
 use App\Models\OrderPaymentHistory;
+use App\Models\Delivery;
 use Livewire\WithPagination;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Response;
@@ -22,6 +23,7 @@ class AllPayments extends Component
     public $status = '';
     public $paymentMode = '';
     public $search = '';
+    public $deliveryId = '';  // Added filter for delivery
 
     // Totals - computed on demand
     public $totalPosted;
@@ -47,11 +49,13 @@ class AllPayments extends Component
         $paymentModes = $this->getPaymentModes();
         $statuses = $this->getStatuses();
         $payments = $this->getPayments();
+        $deliveries = $this->getDeliveries();
 
         return view('livewire.payments.all-payments', [
             'payments' => $payments,
             'paymentModes' => $paymentModes,
             'statuses' => $statuses,
+            'deliveries' => $deliveries,
         ]);
     }
 
@@ -78,11 +82,21 @@ class AllPayments extends Component
     }
 
     /**
+     * Get all deliveries for dropdown
+     */
+    private function getDeliveries()
+    {
+        return Delivery::select('info_id', 'transno', 'date')
+            ->orderBy('date', 'desc')
+            ->get();
+    }
+
+    /**
      * Get payments with applied filters
      */
     private function getPayments()
     {
-        $query = OrderPaymentHistory::with('details')
+        $query = OrderPaymentHistory::with(['details', 'delivery'])
             ->whereBetween('date_of_payment', [
                 $this->dateFrom,
                 Carbon::parse($this->dateTo)->endOfDay()->toDateTimeString()
@@ -96,6 +110,11 @@ class AllPayments extends Component
         // Apply payment mode filter
         if (!empty($this->paymentMode)) {
             $query->where('mop', $this->paymentMode);
+        }
+
+        // Apply delivery filter
+        if (!empty($this->deliveryId)) {
+            $query->where('delivery_id', $this->deliveryId);
         }
 
         // Apply search filter
@@ -112,6 +131,11 @@ class AllPayments extends Component
                           ->orWhere('oa_client', 'LIKE', "%{$search}%")
                           ->orWhere('oa_consultant', 'LIKE', "%{$search}%")
                           ->orWhere('oa_presenter', 'LIKE', "%{$search}%");
+                  })
+                  // Search in related delivery fields
+                  ->orWhereHas('delivery', function($deliveryQuery) use ($search) {
+                      $deliveryQuery->where('transno', 'LIKE', "%{$search}%")
+                          ->orWhere('client', 'LIKE', "%{$search}%");
                   });
             });
         }
@@ -130,21 +154,17 @@ class AllPayments extends Component
             Carbon::parse($this->dateTo)->endOfDay()->toDateTimeString()
         ];
 
-        $this->totalPosted = OrderPaymentHistory::where('status', 'Posted')
-            ->whereBetween('date_of_payment', $dateRange)
-            ->sum('amount');
+        $query = OrderPaymentHistory::whereBetween('date_of_payment', $dateRange);
 
-        $this->totalUnposted = OrderPaymentHistory::where('status', 'Unposted')
-            ->whereBetween('date_of_payment', $dateRange)
-            ->sum('amount');
+        // Apply delivery filter to totals as well
+        if (!empty($this->deliveryId)) {
+            $query->where('delivery_id', $this->deliveryId);
+        }
 
-        $this->totalOnHold = OrderPaymentHistory::where('status', 'On-hold')
-            ->whereBetween('date_of_payment', $dateRange)
-            ->sum('amount');
-
-        $this->totalVoided = OrderPaymentHistory::where('status', 'Voided')
-            ->whereBetween('date_of_payment', $dateRange)
-            ->sum('amount');
+        $this->totalPosted = (clone $query)->where('status', 'Posted')->sum('amount');
+        $this->totalUnposted = (clone $query)->where('status', 'Unposted')->sum('amount');
+        $this->totalOnHold = (clone $query)->where('status', 'On-hold')->sum('amount');
+        $this->totalVoided = (clone $query)->where('status', 'Voided')->sum('amount');
     }
 
     /**
@@ -157,6 +177,7 @@ class AllPayments extends Component
         $this->status = '';
         $this->paymentMode = '';
         $this->search = '';
+        $this->deliveryId = '';
         $this->resetPage();
         $this->calculateTotals();
     }
@@ -223,7 +244,7 @@ class AllPayments extends Component
      */
     public function export()
     {
-        $query = OrderPaymentHistory::with('details')
+        $query = OrderPaymentHistory::with(['details', 'delivery'])
             ->whereBetween('date_of_payment', [
                 $this->dateFrom,
                 Carbon::parse($this->dateTo)->endOfDay()->toDateTimeString()
@@ -237,6 +258,11 @@ class AllPayments extends Component
         // Apply payment mode filter
         if (!empty($this->paymentMode)) {
             $query->where('mop', $this->paymentMode);
+        }
+
+        // Apply delivery filter
+        if (!empty($this->deliveryId)) {
+            $query->where('delivery_id', $this->deliveryId);
         }
 
         // Apply search filter
@@ -253,6 +279,11 @@ class AllPayments extends Component
                           ->orWhere('oa_client', 'LIKE', "%{$search}%")
                           ->orWhere('oa_consultant', 'LIKE', "%{$search}%")
                           ->orWhere('oa_presenter', 'LIKE', "%{$search}%");
+                  })
+                  // Search in related delivery fields
+                  ->orWhereHas('delivery', function($deliveryQuery) use ($search) {
+                      $deliveryQuery->where('transno', 'LIKE', "%{$search}%")
+                          ->orWhere('client', 'LIKE', "%{$search}%");
                   });
             });
         }
@@ -275,6 +306,7 @@ class AllPayments extends Component
             'Date of Payment',
             'Order Number',
             'Client',
+            'Delivery Receipt',
             'Payment Mode',
             'Reference Number',
             'Amount',
@@ -293,6 +325,7 @@ class AllPayments extends Component
                 $payment->date_of_payment,
                 $payment->details->oa_number,
                 $payment->details->oa_client,
+                $payment->delivery ? $payment->delivery->transno : 'N/A',
                 $payment->mop,
                 $payment->reference_no,
                 $payment->amount,
@@ -334,6 +367,7 @@ class AllPayments extends Component
             'date_to' => $this->dateTo,
             'status' => $this->status,
             'payment_mode' => $this->paymentMode,
+            'delivery_id' => $this->deliveryId,
             'search' => $this->search,
         ]);
     }

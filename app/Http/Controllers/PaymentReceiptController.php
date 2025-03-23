@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Order;
-use App\Models\OrderPaymentHistory;
 use Illuminate\Http\Request;
+use App\Models\OrderPaymentHistory;
+use App\Http\Controllers\Controller;
 
 class PaymentReceiptController extends Controller
 {
@@ -219,29 +221,81 @@ public function showBatchReceipt($batch_number)
     }
 
     /**
-     * Void an entire batch of payments
+     * Print all payments report
      *
-     * @param string $batch_number The batch receipt number
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
      */
-    public function voidBatchReceipt($batch_number)
+    public function printAllPayments(Request $request)
     {
-        $batch_payments = OrderPaymentHistory::where('batch_receipt_number', $batch_number)->get();
+        // Get filter parameters
+        $dateFrom = $request->input('date_from', now()->subDays(30)->format('Y-m-d'));
+        $dateTo = $request->input('date_to', now()->format('Y-m-d'));
+        $status = $request->input('status');
+        $paymentMode = $request->input('payment_mode');
+        $deliveryId = $request->input('delivery_id'); // Get delivery_id
+        $search = $request->input('search');
 
-        if ($batch_payments->isEmpty()) {
-            return back()->with('error', 'Batch receipt not found.');
+        // Build query with filters
+        $query = OrderPaymentHistory::with(['details', 'delivery'])
+            ->whereBetween('date_of_payment', [
+                $dateFrom,
+                Carbon::parse($dateTo)->endOfDay()->toDateTimeString()
+            ]);
+
+        // Apply filters
+        if (!empty($status)) {
+            $query->where('status', $status);
         }
 
-        // Void all payments in the batch
-        foreach ($batch_payments as $payment) {
-            $payment->status = 'Voided';
-            $payment->save();
+        if (!empty($paymentMode)) {
+            $query->where('mop', $paymentMode);
         }
 
-        // Get the order ID from the first payment
-        $oa_id = $batch_payments->first()->oa_id;
+        // Apply delivery filter
+        if (!empty($deliveryId)) {
+            $query->where('delivery_id', $deliveryId);
+        }
 
-        return redirect()->route('receipt.batch', ['oa_id' => $oa_id])
-            ->with('success', 'Batch receipt #' . $batch_number . ' has been voided successfully.');
+        // Apply search filter
+        if (!empty($search)) {
+            $searchTerm = "%{$search}%";
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('receipt_number', 'LIKE', $searchTerm)
+                ->orWhere('batch_receipt_number', 'LIKE', $searchTerm)
+                ->orWhere('reference_no', 'LIKE', $searchTerm)
+                ->orWhereHas('details', function($orderQuery) use ($searchTerm) {
+                    $orderQuery->where('oa_number', 'LIKE', $searchTerm)
+                        ->orWhere('oa_client', 'LIKE', $searchTerm);
+                })
+                ->orWhereHas('delivery', function($deliveryQuery) use ($searchTerm) {
+                    $deliveryQuery->where('transno', 'LIKE', $searchTerm);
+                });
+            });
+        }
+
+        // Get payments and calculate totals
+        $payments = $query->orderBy('date_of_payment', 'desc')->get();
+
+        // Calculate totals for different statuses
+        $totalPosted = $payments->where('status', 'Posted')->sum('amount');
+        $totalUnposted = $payments->where('status', 'Unposted')->sum('amount');
+        $totalOnHold = $payments->where('status', 'On-hold')->sum('amount');
+        $totalVoided = $payments->where('status', 'Voided')->sum('amount');
+
+        // Return view with data
+        return view('payments.print', [
+            'payments' => $payments,
+            'date_from' => $dateFrom,
+            'date_to' => $dateTo,
+            'status' => $status,
+            'payment_mode' => $paymentMode,
+            'delivery_id' => $deliveryId,
+            'search' => $search,
+            'total_posted' => $totalPosted,
+            'total_unposted' => $totalUnposted,
+            'total_on_hold' => $totalOnHold,
+            'total_voided' => $totalVoided
+        ]);
     }
 }

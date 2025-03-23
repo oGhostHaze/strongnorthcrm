@@ -6,20 +6,26 @@
         <div class="card-body">
             <!-- Grid column -->
             <div class="row">
-                <div class="col-sm-12 text-center">
+                <div class="text-center col-sm-12">
                     <h3 class="font-weight-bold">ORDER AGREEMENT</h3>
                     <h7 class="font-weight-bold text-danger">{{ $oa->oa_number }}</h7>
                 </div>
                 <div class="col-sm-12 text-end">
                     <div class="alert alert-info">
                         <strong>Batch Receipt #:</strong> {{ $batchReceiptNumber }}
+                        @if ($delivery)
+                            <div class="mt-2">
+                                <strong>Associated Delivery:</strong> {{ $delivery->transno }}
+                                <span class="text-muted">({{ $delivery->date }})</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
                 <hr>
             </div>
             <div class="row">
                 <!-- Grid column -->
-                <div class="col-md-6 text-left border-right">
+                <div class="text-left col-md-6 border-right">
                     <p class="p-0 m-0"><strong>Date: </strong>{{ $oa->oa_date }}</p>
                     <p class="p-0 m-0"><strong>Client: </strong>{{ $oa->oa_client }}</p>
                     <p class="p-0 m-0"><strong>Address: </strong>{{ $oa->oa_address }}</p>
@@ -27,7 +33,7 @@
                 </div>
                 <!-- Grid column -->
                 <!-- Grid column -->
-                <div class="col-md-6 text-left">
+                <div class="text-left col-md-6">
                     <p class="p-0 m-0"><strong>Consultant: </strong>{{ $oa->oa_consultant }}</p>
                     <p class="p-0 m-0"><strong>Associate: </strong>{{ $oa->oa_associate }}</p>
                     <p class="p-0 m-0"><strong>Presenter: </strong>{{ $oa->oa_presenter }}</p>
@@ -143,7 +149,7 @@
                 </table>
             </div>
 
-            <div class="d-flex mt-3">
+            <div class="mt-3 d-flex">
                 <button class="btn btn-primary me-2" wire:click="addPaymentRow">➕ Add Row</button>
                 <button class="btn btn-success" wire:click="savePayments">💾 Save Batch Payment</button>
             </div>
