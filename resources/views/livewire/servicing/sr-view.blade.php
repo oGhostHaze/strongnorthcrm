@@ -23,7 +23,7 @@
                             <img src="{{ url('img/str.png') }}" alt="" class="img-fluid" style="max-width: 60%">
                         </div>
                         <div class="col-6 text-center">
-                            <h3 class="fw-bold my-0">StrongNorth Enterprise OPC</h3>
+                            <h3 class="fw-bold my-0">StrongNorth Enterprises OPC</h3>
                             <p class="small p-0 my-0">(Independent Authorized Dealer)</p>
                             <p class="small p-0 my-0">9-10 VYV Bldg., Valdez Center, Brgy 1 San Nicolas, Ilocos Norte
                             </p>
@@ -132,7 +132,7 @@
                                     style="max-width: 60%">
                             </div>
                             <div class="col-6 text-center">
-                                <h3 class="fw-bold my-0">StrongNorth Enterprise OPC</h3>
+                                <h3 class="fw-bold my-0">StrongNorth Enterprises OPC</h3>
                                 <p class="small p-0 my-0">(Independent Authorized Dealer)</p>
                                 <p class="small p-0 my-0">9-10 VYV Bldg., Valdez Center, Brgy 1 San Nicolas, Ilocos
                                     Norte</p>

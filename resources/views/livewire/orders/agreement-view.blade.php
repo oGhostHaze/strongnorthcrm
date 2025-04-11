@@ -9,6 +9,9 @@
     </style>
     @php
         $col = 7;
+        $total_pending_items = $oa->items()->sum('item_qty') + $oa->gifts()->sum('item_qty');
+        $total_released_items = $oa->items()->sum('released') + $oa->gifts()->sum('released');
+        $total_returned_items = $oa->items()->sum('returned') + $oa->gifts()->sum('returned');
     @endphp
     <div class="row">
         <div class="col-lg-8">
@@ -173,6 +176,21 @@
                                         </td>
                                     </tr>
                                 @endforelse
+                                <tr class="text-center">
+                                    <td colspan="8">--Nothing Follows--</td>
+                                </tr>
+                                <tr class='table-light text-uppercase'>
+                                    <td class="text-end" colspan='6'><strong>Pending Items:</strong></td>
+                                    <td class='text-end' colspan="2">{{ $total_pending_items }}</td>
+                                </tr>
+                                <tr class='table-light text-uppercase'>
+                                    <td class="text-end" colspan='6'><strong>Released Items:</strong></td>
+                                    <td class='text-end' colspan="2">{{ $total_released_items }}</td>
+                                </tr>
+                                <tr class='table-light text-uppercase'>
+                                    <td class="text-end" colspan='6'><strong>Returned Items:</strong></td>
+                                    <td class='text-end' colspan="2">{{ $total_returned_items }}</td>
+                                </tr>
                                 <tr class='table-light'>
                                     <td class="text-end" colspan='6'><strong>SUBTOTAL:</strong></td>
                                     <td class='text-end' colspan="2"><span>&#8369;
@@ -237,7 +255,7 @@
                             </div>
                             <p class="text-truncate">
                                 <small>Checks payable only to <span class="fw-bold text-uppercase">StrongNorth
-                                        Enterprise OPC</span></small>
+                                        Enterprises OPC</span></small>
                             </p>
                             <div class="pt-5 mt-10 text-center d-flex flex-column justify-content-center">
                                 <div class="mx-auto">
@@ -396,6 +414,7 @@
                                             <option value="NEW ORDER">NEW ORDER</option>
                                             <option value="TRIAL DELIVERY">TRIAL DELIVERY</option>
                                             <option value="FOR ADJUSTMENT">FOR ADJUSTMENT</option>
+                                            <option value="WARRANTY REPLACEMENT">WARRANTY REPLACEMENT</option>
                                             {{-- <option value="TFO">TFO</option>
                                             <option value="TFG">TFG</option>
                                             <option value="INCR">INCR</option>

@@ -31,22 +31,24 @@
                             Details</label>
                         <a class="my-2 btn btn-sm btn-warning ms-2"
                             href="{{ route('signaturepad', $oa->oa_number) }}">Signature</a>
-                        <a href="#" class="btn btn-sm btn-info ms-auto"
-                            onclick="printdiv('print_div')">Print</a>
+                        <a href="#" class="btn btn-sm btn-info ms-auto" onclick="printdiv('print_div')">Print</a>
                     </div>
                     <div class="overflow-hidden bg-white sm:rounded-lg" id="print_div">
                         <div class="flex mb-1 p-6 pb-0">
                             <div class="w-1/4 ps-4 mb-0">
-                                <img src="{{ url('img/str.png') }}" alt="" class="img-fluid" style="max-width: 60%">
+                                <img src="{{ url('img/str.png') }}" alt="" class="img-fluid"
+                                    style="max-width: 60%">
                             </div>
                             <div class="w-1/2 text-center">
-                                <h3 class="font-bold my-0">StrongNorth Enterprise OPC</h3>
+                                <h3 class="font-bold my-0">StrongNorth Enterprises OPC</h3>
                                 <p class="text-sm p-0 my-0">(Independent Authorized Dealer)</p>
-                                <p class="text-sm p-0 my-0">9-10 VYV Bldg., Valdez Center, Brgy 1 San Nicolas, Ilocos Norte</p>
+                                <p class="text-sm p-0 my-0">9-10 VYV Bldg., Valdez Center, Brgy 1 San Nicolas, Ilocos
+                                    Norte</p>
                                 <p class="text-sm p-0 my-0">Contact: 0917-891-9180</p>
                             </div>
                             <div class="w-1/4 pe-4 mb-0">
-                                <img src="{{ url('img/right.png') }}" alt="" class="img-fluid ms-auto" style="max-width: 60%">
+                                <img src="{{ url('img/right.png') }}" alt="" class="img-fluid ms-auto"
+                                    style="max-width: 60%">
                             </div>
                         </div>
                         <div class="p-6 pt-2 text-center bg-white border-b border-gray-200 sm:px-20">
@@ -64,14 +66,11 @@
                                     <div>Contact #: <span class="font-bold">{{ $oa->oa_contact }}</span></div>
                                 </div>
                                 <div class="flex-col">
-                                    <div>Consultant: <span
-                                            class="font-bold capitalize">{{ $oa->oa_consultant }}</span>
+                                    <div>Consultant: <span class="font-bold capitalize">{{ $oa->oa_consultant }}</span>
                                     </div>
-                                    <div>Associate: <span
-                                            class="font-bold capitalize">{{ $oa->oa_associate }}</span>
+                                    <div>Associate: <span class="font-bold capitalize">{{ $oa->oa_associate }}</span>
                                     </div>
-                                    <div>Presenter: <span
-                                            class="font-bold capitalize">{{ $oa->oa_presenter }}</span>
+                                    <div>Presenter: <span class="font-bold capitalize">{{ $oa->oa_presenter }}</span>
                                     </div>
                                     <div>Team Builder: <span
                                             class="font-bold capitalize">{{ $oa->oa_team_builder }}</span></div>
@@ -100,7 +99,8 @@
                                                     : $order->product->product_description !!}</td>
                                                 <td class="text-end">{{ number_format($order->item_price, 2) }}
                                                 </td>
-                                                <td class="text-end">{{ $order->item_qty + $order->returned + $order->released}}</td>
+                                                <td class="text-end">
+                                                    {{ $order->item_qty + $order->returned + $order->released }}</td>
                                                 <td class="text-end">{{ number_format($order->item_total, 2) }}
                                                 </td>
                                             </tr>
@@ -131,9 +131,15 @@
                                                 $row_count--;
                                             @endphp
                                             <tr class="border border-black">
-                                                <td>@if($order->type) <span>[{{ $order->type }}]</span> @endif {{ $order->product->product_description }}</td>
+                                                <td>
+                                                    @if ($order->type)
+                                                        <span>[{{ $order->type }}]</span>
+                                                    @endif
+                                                    {{ $order->product->product_description }}
+                                                </td>
                                                 <td class="text-end">{{ number_format($order->item_price, 2) }}</td>
-                                                <td class="text-end">{{ $order->item_qty + $order->returned + $order->released}}</td>
+                                                <td class="text-end">
+                                                    {{ $order->item_qty + $order->returned + $order->released }}</td>
                                                 <td class="text-end">{{ number_format(0, 2) }}</td>
                                             </tr>
                                         @empty
@@ -196,15 +202,14 @@
                                         <span>Terms: </span> <span class="ml-1">{{ $oa->terms }}</span>
                                     </div>
                                     <p class="text-ellipsis">
-                                        <small>Checks payable only to <span
-                                                class="font-bold uppercase">StrongNorth Cookware
-                                                Trading</span></small>
+                                        <small>Checks payable only to <span class="font-bold uppercase">StrongNorth
+                                                Enterprises OPC</span></small>
                                     </p>
                                     <div class="flex flex-col justify-center pt-5 mt-10 text-center">
                                         <div class="mx-auto">
                                             @if ($oa->host_signature)
-                                                <img src="{{ url('upload/' . $oa->host_signature) }}"
-                                                    class="h-20" alt="Host Signature">
+                                                <img src="{{ url('upload/' . $oa->host_signature) }}" class="h-20"
+                                                    alt="Host Signature">
                                             @endif
                                         </div>
                                         <div class="w-full border-t">
@@ -279,7 +284,6 @@
 
 
     <script>
-
         function printdiv(divID) {
             var printContents = document.getElementById('print_div').innerHTML;
             var originalContents = document.body.innerHTML;

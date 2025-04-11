@@ -33,7 +33,7 @@
                                     style="max-width: 60%">
                             </div>
                             <div class="text-center col-6">
-                                <h3 class="my-0 fw-bold">StrongNorth Enterprise OPC</h3>
+                                <h3 class="my-0 fw-bold">StrongNorth Enterprises OPC</h3>
                                 <p class="p-0 my-0 small">(Independent Authorized Dealer)</p>
                                 <p class="p-0 my-0 small">9-10 VYV Bldg., Valdez Center, Brgy 1 San Nicolas, Ilocos
                                     Norte</p>
@@ -233,7 +233,7 @@
                                                 style="max-width: 60%">
                                         </div>
                                         <div class="text-center col-6">
-                                            <h3 class="my-0 fw-bold">StrongNorth Enterprise OPC</h3>
+                                            <h3 class="my-0 fw-bold">StrongNorth Enterprises OPC</h3>
                                             <p class="p-0 my-0 small">(Independent Authorized Dealer)</p>
                                             <p class="p-0 my-0 small">9-10 VYV Bldg., Valdez Center, Brgy 1 San Nicolas, Ilocos
                                                 Norte</p>
@@ -420,7 +420,7 @@
                                                 style="max-width: 60%">
                                         </div>
                                         <div class="text-center col-6">
-                                            <h3 class="my-0 fw-bold">StrongNorth Enterprise OPC</h3>
+                                            <h3 class="my-0 fw-bold">StrongNorth Enterprises OPC</h3>
                                             <p class="p-0 my-0 small">(Independent Authorized Dealer)</p>
                                             <p class="p-0 my-0 small">9-10 VYV Bldg., Valdez Center, Brgy 1 San Nicolas, Ilocos
                                                 Norte</p>
@@ -607,7 +607,7 @@
                                                 style="max-width: 60%">
                                         </div>
                                         <div class="text-center col-6">
-                                            <h3 class="my-0 fw-bold">StrongNorth Enterprise OPC</h3>
+                                            <h3 class="my-0 fw-bold">StrongNorth Enterprises OPC</h3>
                                             <p class="p-0 my-0 small">(Independent Authorized Dealer)</p>
                                             <p class="p-0 my-0 small">9-10 VYV Bldg., Valdez Center, Brgy 1 San Nicolas, Ilocos
                                                 Norte</p>

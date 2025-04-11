@@ -209,8 +209,8 @@
                                 <span>Terms: {{ $oa->terms }}</span>
                             </div>
                             <p class="text-ellipsis">
-                                <small>Checks payable only to <span class="font-bold uppercase">StrongNorth Cookware
-                                        Trading</span></small>
+                                <small>Checks payable only to <span class="font-bold uppercase">StrongNorth Enterprises
+                                        OPC</span></small>
                             </p>
                             <div class="flex flex-col justify-center pt-5 mt-10 text-center">
                                 <div class="mx-auto">

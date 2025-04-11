@@ -40,8 +40,12 @@ class PendingOrders extends Component
 
     public function render()
     {
-        $orders = OrderAgreement::paginate(20);
-        $bookings = CookingShow::where('host', 'LIKE', '%' . $this->oa_client . '%')
+        $orders = OrderAgreement::where('oa_number', 'like', '%' . $this->search . '%')
+            ->orWhere('client', 'like', '%' . $this->search . '%')
+            ->orWhere('presenter', 'like', '%' . $this->search . '%')
+            ->orWhere('associate', 'like', '%' . $this->search . '%')
+            ->paginate(20);
+        $bookings = CookingShow::where('host', 'LIKE', '%' . $this->search . '%')
             ->where('user_id', Auth::user()->user_id)
             ->where('result', '<>', 'Booked')
             ->orderBy('date', 'DESC');
