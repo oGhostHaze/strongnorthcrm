@@ -43,9 +43,18 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label for="delivery_id" class="form-label">Delivery</label>
+                        <label for="delivery_filter" class="form-label">Delivery</label>
+                        <select class="form-select" id="delivery_filter" wire:model.defer="deliveryFilter">
+                            <option value="all">All Payments</option>
+                            <option value="with_delivery">With Delivery</option>
+                            <option value="without_delivery">Without Delivery (Advance Payments)</option>
+                            <option value="specific">Specific Delivery</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2" @if ($deliveryFilter != 'specific') style="display: none;" @endif>
+                        <label for="delivery_id" class="form-label">Select Delivery</label>
                         <select class="form-select" id="delivery_id" wire:model.defer="deliveryId">
-                            <option value="">All Deliveries</option>
+                            <option value="">-- Select Delivery --</option>
                             @foreach ($deliveries as $delivery)
                                 <option value="{{ $delivery->info_id }}">{{ $delivery->transno }}</option>
                             @endforeach
@@ -100,8 +109,8 @@
                 <div class="col-md-3">
                     <div class="text-white card bg-danger">
                         <div class="py-2 card-body">
-                            <h6 class="mb-0 card-title">Voided Payments</h6>
-                            <h3 class="card-text">₱{{ number_format($totalVoided, 2) }}</h3>
+                            <h6 class="mb-0 card-title">Total Unpaid</h6>
+                            <h3 class="card-text">₱{{ number_format($totalUnpaidBalance, 2) }}</h3>
                         </div>
                     </div>
                 </div>
@@ -120,6 +129,7 @@
                             <th>Payment Mode</th>
                             <th>Reference #</th>
                             <th>Amount</th>
+                            <th>Remaining Balance</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -163,6 +173,25 @@
                                 <td>{{ $payment->mop }}</td>
                                 <td>{{ $payment->reference_no }}</td>
                                 <td>₱{{ number_format($payment->amount, 2) }}</td>
+                                <td>
+                                    @php
+                                        $subtotal = $payment->details->oa_price_override
+                                            ? $payment->details->oa_price_override
+                                            : $payment->details->items()->sum('item_total');
+                                        $total = (float) $subtotal + (float) $payment->details->oa_price_diff;
+                                        $totalPaid = $payment->details
+                                            ->payments()
+                                            ->where('status', '!=', 'Voided')
+                                            ->sum('amount');
+                                        $remainingBalance = $total - $totalPaid;
+                                    @endphp
+                                    <span class="{{ $remainingBalance <= 0 ? 'text-success' : 'text-danger' }}">
+                                        ₱{{ number_format($remainingBalance, 2) }}
+                                    </span>
+                                    @if ($remainingBalance <= 0)
+                                        <span class="badge bg-success">Fully Paid</span>
+                                    @endif
+                                </td>
                                 <td>
                                     <span
                                         class="badge {{ $payment->status == 'Posted'
@@ -218,7 +247,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="text-center">No payment records found</td>
+                                <td colspan="11" class="text-center">No payment records found</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -340,6 +369,28 @@
 
             // Show and hide update payment modal
             document.addEventListener('livewire:load', function() {
+                Livewire.hook('message.processed', (message, component) => {
+                    const deliveryFilter = document.getElementById('delivery_filter');
+                    const deliveryIdContainer = document.getElementById('delivery_id').closest('.col-md-2');
+
+                    if (deliveryFilter) {
+                        // Initial state
+                        if (deliveryFilter.value !== 'specific') {
+                            deliveryIdContainer.style.display = 'none';
+                        } else {
+                            deliveryIdContainer.style.display = 'block';
+                        }
+
+                        // Add event listener
+                        deliveryFilter.addEventListener('change', function() {
+                            if (this.value !== 'specific') {
+                                deliveryIdContainer.style.display = 'none';
+                            } else {
+                                deliveryIdContainer.style.display = 'block';
+                            }
+                        });
+                    }
+                });
                 // Create modal instance once and store it
                 const updatePaymentModal = new bootstrap.Modal(document.getElementById('updatePaymentModal'));
 
