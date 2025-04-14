@@ -47,6 +47,9 @@
                             </a>
 
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{{ route('clients.list') }}">
+                                    <i class="fa-solid fa-users"></i> Client Masterlist
+                                </a>
                                 <a class="dropdown-item" href="{{ route('order.agreements') }}">
                                     <i class="fa-solid fa-file-lines"></i> Order Agreements
                                 </a>
@@ -88,7 +91,7 @@
                         <li class="nav-item dropdown">
                             <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
                                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                <i class="fa-brands fa-shopify"></i> Merch. Mgmt.
+                                <i class="fa-brands fa-shopify"></i> Merch.
                             </a>
 
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -109,7 +112,7 @@
                         <li class="nav-item dropdown">
                             <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
                                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                <i class="fa-solid fa-sitemap"></i> Material Mgmt.
+                                <i class="fa-solid fa-sitemap"></i> Supplies
                             </a>
 
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -161,7 +164,7 @@
                                 Merchandise Inventory
                             </a>
                             <a class="dropdown-item" href="{{ route('inventory.supply.all') }}">
-                                Office Supply Inventory
+                                Supply Inventory
                             </a>
                             <a class="dropdown-item" href="{{ route('rep.payments') }}">
                                 Order Payments
@@ -171,7 +174,7 @@
                     <li class="nav-item dropdown">
                         <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                            <i class="fa-solid fa-book"></i> Reference Tables
+                            <i class="fa-solid fa-book"></i> References
                         </a>
 
                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">

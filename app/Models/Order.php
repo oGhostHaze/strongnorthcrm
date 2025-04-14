@@ -7,6 +7,7 @@ use App\Models\OrderGift;
 use App\Models\OrderItem;
 use App\Models\OrderPaymentHistory;
 use App\Models\OrderReturnInfo;
+use App\Models\Client;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -35,6 +36,7 @@ class Order extends Model
         'price_diff',
         'price_override',
         'reference_oa',
+        'client_id', // Added client_id for the relationship
 
         'current_level',
         'delivery_date',
@@ -69,6 +71,11 @@ class Order extends Model
     public function payments()
     {
         return $this->hasMany(OrderPaymentHistory::class, 'oa_id', 'oa_id')->latest('date_of_payment');
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id', 'client_id');
     }
 
     public function percentage()

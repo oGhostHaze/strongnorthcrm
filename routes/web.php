@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Livewire\Home;
-use App\Http\Livewire\Payments\AllPayments;
 use App\Http\Livewire\Sets\Setlist;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -12,7 +11,9 @@ use App\Http\Livewire\Sets\Composition;
 use App\Http\Livewire\Inventories\PerDr;
 use App\Http\Livewire\Orders\Agreements;
 use App\Http\Controllers\OrderController;
+use App\Http\Livewire\Clients\ClientList;
 use App\Http\Livewire\Orders\AgreementView;
+use App\Http\Livewire\Payments\AllPayments;
 use App\Http\Livewire\Products\ProductList;
 use App\Http\Livewire\Products\StockinList;
 use App\Http\Livewire\Inventories\SupplyAll;
@@ -22,6 +23,7 @@ use App\Http\Livewire\Merchandise\MerchItems;
 use App\Http\Livewire\Deliveries\DeliveryList;
 use App\Http\Livewire\Deliveries\DeliveryView;
 use App\Http\Livewire\Merchandise\MerchOrders;
+use App\Http\Livewire\Orders\BatchAddPayments;
 use App\Http\Livewire\Supplies\SupplyItemList;
 use App\Http\Livewire\Supplies\SupplyLocation;
 use App\Http\Livewire\CookingShows\ViewCsOrder;
@@ -38,7 +40,6 @@ use App\Http\Livewire\References\MeasurementUnit;
 use App\Http\Livewire\Merchandise\MerchOrdersView;
 use App\Http\Livewire\Supplies\SupplyDisposedItems;
 use App\Http\Livewire\Merchandise\MerchDeliveryView;
-use App\Http\Livewire\Orders\BatchAddPayments;
 use App\Http\Livewire\Products\StockinReportFiltered;
 use App\Http\Livewire\References\ManageModeOfPayment;
 
@@ -60,6 +61,9 @@ Route::middleware('auth')->group(function () {
         return view('home');
     });
     Route::get('/home', Home::class)->name('home');
+
+    // Clients Management Routes
+    Route::get('/clients', ClientList::class)->name('clients.list');
 
     Route::get('/product/list', ProductList::class)->name('product.list');
     Route::get('/product/sets/list', Setlist::class)->name('set.list');
@@ -149,7 +153,7 @@ Route::middleware('auth')->group(function () {
     });
 
 
-// Global Payments List Routes (using Livewire)
+    // Global Payments List Routes (using Livewire)
     Route::prefix('/payments')->name('payments.')->group(function () {
         // The main Livewire component will handle the payment listing
         Route::get('/', AllPayments::class)->name('all');

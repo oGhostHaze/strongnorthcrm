@@ -1,30 +1,24 @@
-<div class="container-fluid">
+<div>
     <div class="card">
         <div class="card-header">
-            <div class="d-flex justify-content-between">
-                <span class="text-uppercase fw-bolder">Order Agreements</span>
-                <div class="d-flex w-25">
-                    <div class="">
-                        @can('create-orders')
-                            <a href="" class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                data-bs-target="#exampleModal">New Order</a>
-                        @endcan
-                    </div>
-                    <div class="col ms-2">
-                        <div class="input-group">
-                            <span class="input-group-text" id="search"><i
-                                    class="fa-solid fa-magnifying-glass"></i></span>
-                            <input type="text" class="form-control form-control-sm" placeholder="Search"
-                                aria-label="Search" aria-describedby="search" wire:model.lazy="search">
-                        </div>
+            <h4>Order Agreements</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control"
+                            placeholder="Search by oa number, client, presenter, or associate" wire:model="search">
+                        <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal"
+                            data-bs-target="#modal-new-OA">
+                            <i class="fa fa-plus"></i> New Order Agreement
+                        </button>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-sm table-hover table-striped table-bordered">
-                    <thead class="table-primary">
+                <table class="table table-hover table-sm">
+                    <thead>
                         <tr>
                             <th>Date</th>
                             <th>OA #</th>
@@ -36,17 +30,17 @@
                             <th>To Follow</th>
                             <th>Released</th>
                             <th>DR Count</th>
-                            {{-- <th>Status</th> --}}
                             <th>Payment Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($data as $row)
+                        @forelse($data as $row)
                             @php
                                 $released = 0;
                                 $to_follow = 0;
                             @endphp
-                            <tr wire:click="$emit('view_order', {{ $row }})" style="cursor: pointer">
+                            <tr wire:click="$emit('view_order', {{ $row }})"
+                                style="cursor: pointer; font-size: 0.9rem;">
                                 <td>{{ $row->oa_date }}</td>
                                 <td>{{ $row->oa_number }}</td>
                                 <td>{{ $row->oa_client }}</td>
@@ -59,7 +53,6 @@
                                 <td>{{ $released += $row->items()->sum('released') + $row->gifts()->sum('released') }}
                                 </td>
                                 <td>{{ $row->drs()->count() }}</td>
-                                {{-- <td>{{ $released$row->oa_status }}</td> --}}
                                 <td>
                                     <div class="progress">
                                         <div class="progress-bar @if ($row->percentage() >= 30) bg-success @else bg-danger @endif"
@@ -71,150 +64,162 @@
                                 </td>
                             </tr>
                         @empty
+                            <tr>
+                                <td colspan="8" class="text-center">No records found...</td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            <caption>{{ $data->links() }}</caption>
+            <div class="d-flex justify-content-center mt-3">
+                {{ $data->links() }}
+            </div>
         </div>
     </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
-        wire:ignore.self>
-        <div class="modal-dialog modal-xl">
+    <!-- New Order Agreement Modal -->
+    <div wire:ignore.self class="modal fade" id="modal-new-OA" tabindex="-1" role="dialog"
+        aria-labelledby="modal-new-OALabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">New Order Agreement</h5>
+                    <h5 class="modal-title" id="modal-new-OALabel">Create Order Agreement</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    @error('oa_date')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                    <div class="input-group mb-2 w-25">
-                        <span class="input-group-text" id="oa_date">Date</span>
-                        <input type="date" class="form-control form-control-sm" wire:model.defer="oa_date">
-                    </div>
+                    <form wire:submit.prevent="save">
+                        <div class="form-group mb-2">
+                            <label for="oa_date">Date</label>
+                            <input type="date" class="form-control" id="oa_date" wire:model="oa_date">
+                            @error('oa_date')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
 
-                    <label class="h4">Client Details</label>
-                    @error('oa_client')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                    <div class="input-group mb-2">
-                        <span class="input-group-text" id="oa_client">Client</span>
-                        <input type="text" class="form-control form-control-sm" wire:model.defer="oa_client">
-                    </div>
-                    <div class="row">
-                        <div class="col-6">
+                        <!-- Client Selection Section (Added) -->
+                        <div class="form-group mb-3">
+                            <label>Select from Client Masterlist (Optional)</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="client_search" wire:model="client_search"
+                                    placeholder="Search client by name or contact">
+                                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal"
+                                    data-bs-target="#modal-client-list">
+                                    <i class="fa fa-users"></i> Browse
+                                </button>
+                            </div>
+
+                            @if (count($filteredClients) > 0)
+                                <div class="list-group mt-1">
+                                    @foreach ($filteredClients as $client)
+                                        <button type="button" class="list-group-item list-group-item-action"
+                                            wire:click="clientSelected({{ $client->client_id }})">
+                                            {{ $client->last_name }}, {{ $client->first_name }}
+                                            {{ $client->middle_name }}
+                                            - {{ $client->contact_number }}
+                                        </button>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="form-group mb-2">
+                            <label for="oa_client">Client</label>
+                            <input type="text" class="form-control" id="oa_client" wire:model="oa_client">
+                            @error('oa_client')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group mb-2">
+                            <label for="oa_address">Address</label>
+                            <textarea class="form-control" id="oa_address" wire:model="oa_address" rows="2"></textarea>
                             @error('oa_address')
-                                <small class="text-danger">{{ $message }}</small>
+                                <span class="text-danger">{{ $message }}</span>
                             @enderror
-                            <div class="input-group mb-2">
-                                <span class="input-group-text" id="oa_address">Address</span>
-                                <input type="text" class="form-control form-control-sm"
-                                    wire:model.defer="oa_address">
-                            </div>
                         </div>
-                        <div class="col-6">
-                            @error('oa_contact')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                            <div class="input-group mb-2">
-                                <span class="input-group-text" id="oa_contact">Contact</span>
-                                <input type="text" class="form-control form-control-sm"
-                                    wire:model.defer="oa_contact">
-                            </div>
-                        </div>
-                    </div>
 
-                    <label class="h4">Lifechangers Involved</label>
-                    @error('oa_consultant')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                    <div class="input-group mb-2">
-                        <span class="input-group-text" id="oa_consultant">Consultant</span>
-                        <input type="text" class="form-control form-control-sm" wire:model.defer="oa_consultant">
-                    </div>
-                    <div class="row">
-                        <div class="col-6">
-                            @error('oa_associate')
-                                <small class="text-danger">{{ $message }}</small>
+                        <div class="form-group mb-2">
+                            <label for="oa_contact">Contact</label>
+                            <input type="text" class="form-control" id="oa_contact" wire:model="oa_contact">
+                            @error('oa_contact')
+                                <span class="text-danger">{{ $message }}</span>
                             @enderror
-                            <div class="input-group mb-2">
-                                <span class="input-group-text" id="oa_associate">Associate</span>
-                                <input type="text" class="form-control form-control-sm"
-                                    wire:model.defer="oa_associate">
+                        </div>
+
+                        <div class="input-group mb-2">
+                            <span class="input-group-text" id="oa_consultant">Consultant</span>
+                            <input type="text" class="form-control form-control-sm" wire:model.defer="oa_consultant">
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                @error('oa_associate')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text" id="oa_associate">Associate</span>
+                                    <input type="text" class="form-control form-control-sm"
+                                        wire:model.defer="oa_associate">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                @error('oa_presenter')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text" id="oa_presenter">Presenter</span>
+                                    <input type="text" class="form-control form-control-sm"
+                                        wire:model.defer="oa_presenter">
+                                </div>
                             </div>
                         </div>
-                        <div class="col-6">
-                            @error('oa_presenter')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                            <div class="input-group mb-2">
-                                <span class="input-group-text" id="oa_presenter">Presenter</span>
-                                <input type="text" class="form-control form-control-sm"
-                                    wire:model.defer="oa_presenter">
+                        <div class="row">
+                            <div class="col-6">
+                                @error('oa_team_builder')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text" id="oa_team_builder">Team Builder</span>
+                                    <input type="text" class="form-control form-control-sm"
+                                        wire:model.defer="oa_team_builder">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                @error('oa_distributor')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text" id="oa_distributor">Distributor</span>
+                                    <input type="text" class="form-control form-control-sm"
+                                        wire:model.defer="oa_distributor">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-6">
-                            @error('oa_team_builder')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                            <div class="input-group mb-2">
-                                <span class="input-group-text" id="oa_team_builder">Team Builder</span>
-                                <input type="text" class="form-control form-control-sm"
-                                    wire:model.defer="oa_team_builder">
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            @error('oa_distributor')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                            <div class="input-group mb-2">
-                                <span class="input-group-text" id="oa_distributor">Distributor</span>
-                                <input type="text" class="form-control form-control-sm"
-                                    wire:model.defer="oa_distributor">
-                            </div>
-                        </div>
-                    </div>
+                    </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" wire:click="save()">Save</button>
+                    <button type="button" class="btn btn-primary" wire:click="save">Save Order Agreement</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div wire:ignore.self class="modal fade" id="modal-client-list" tabindex="-1" role="dialog"
+        aria-labelledby="modal-client-listLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-client-listLabel">Client Selection</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- This section will include the client list component -->
+                    @livewire('clients.client-selection')
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-@push('scripts')
-    <script>
-        function update_price(product_id, product_price, product_desc) {
-            Swal.fire({
-                title: '<h5> Update price of ' + ' <strong>' + product_desc + '</strong></h5>',
-                html: `<div class="input-group mb-2">
-                            <span class="input-group-text" id="up">Price</span>
-                            <input id="new_price" type="number" step="0.01" class="form-control form-control-sm" aria-label="Price" aria-describedby="up">
-                        </div>`,
-                showCancelButton: true,
-                confirmButtonText: `Confirm`,
-                didOpen: () => {
-                    const new_price = Swal.getHtmlContainer().querySelector('#new_price')
-                    new_price.value = product_price;
-
-                    new_price.addEventListener('input', () => {
-                        @this.set('product_price', new_price.value);
-                    })
-                }
-            }).then((result) => {
-                /* Read more about isConfirmed, isDenied below */
-                if (result.isConfirmed) {
-                    Livewire.emit('update_price', product_id)
-                }
-            });
-        }
-    </script>
-@endpush

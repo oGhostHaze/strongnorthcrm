@@ -10,22 +10,17 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <!-- Scripts -->
-    <script src="{{ asset('js/app.js') }}" defer></script>
-
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+
     <!-- Styles -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
-    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <x-livewire-alert::scripts />
-    @livewireStyles
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
+    <!-- Select2 Additional Styling -->
     <style>
         section {
             margin-bottom: 0.5in;
@@ -36,8 +31,59 @@
                 page-break-after: always;
             }
         }
+
+        /* Enhanced styling for Select2 dropdowns */
+        .select2-container--default .select2-selection--single {
+            height: 38px;
+            padding: 0.375rem 0.75rem;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: normal;
+            padding-left: 0;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #0d6efd;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            padding: 0.375rem 0.75rem;
+        }
+
+        .product-description {
+            font-weight: 500;
+            max-width: 80%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Make the dropdown wider for better visibility */
+        .select2-dropdown {
+            min-width: 350px !important;
+        }
+
+        /* Style for quantity badge */
+        .badge.bg-secondary {
+            font-size: 0.75rem;
+            font-weight: normal;
+        }
     </style>
     @stack('styles')
+
+    @livewireStyles
 </head>
 
 <body>
@@ -58,12 +104,24 @@
             </div>
         </font>
     </div>
-    @livewireScripts
+
+    <!-- Place jQuery first, before Bootstrap -->
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+
+    <!-- Then Bootstrap and other libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <!-- Livewire scripts -->
+    @livewireScripts
+
+    <!-- Livewire Alert scripts -->
     <x-livewire-alert::scripts />
+
+    <!-- Your custom scripts -->
     @stack('scripts')
+
     <script>
         window.addEventListener('success', event => {
             Swal.fire({
@@ -87,22 +145,6 @@
         $(document).on('select2:open', () => {
             document.querySelector('.select2-search__field').focus();
         });
-        // $('body').on('contextmenu', function(e) {
-        //     var top = e.pageY - 10;
-        //     var left = e.pageX - 90;
-        //     $("#context-menu").css({
-        //         display: "block",
-        //         top: top,
-        //         left: left
-        //     }).addClass("show");
-        //     return false; //blocks default Webbrowser right click menu
-        // }).on("click", function() {
-        //     $("#context-menu").removeClass("show").hide();
-        // });
-
-        // $("#context-menu a").on("click", function() {
-        //     $(this).parent().removeClass("show").hide();
-        // });
     </script>
 </body>
 

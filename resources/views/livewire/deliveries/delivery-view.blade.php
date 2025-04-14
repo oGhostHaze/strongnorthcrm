@@ -1,5 +1,6 @@
 @php
     $row_count = 25;
+    $total_items_count = $delivery->items()->count() + $delivery->gifts()->count();
 @endphp
 <div class="container">
     <div class="row">
@@ -138,6 +139,16 @@
                                                         <td class="text-center text-white" colspan="4"> -</td>
                                                     </tr>
                                                 @endfor
+
+                                                <tr>
+                                                    <td class="text-center" colspan="4">
+                                                        <span class="text-muted">--Nothing Follow--</span>
+                                                    </td>
+                                                </tr>
+                                                <tr class='table-light'>
+                                                    <td class="text-end" colspan='3'><strong>TOTAL ITEMS:</strong></td>
+                                                    <td class='text-end'><strong>{{ $total_items_count }}</strong></td>
+                                                </tr>
                                                 <tr class='table-light'>
                                                     <td class="text-end" colspan='3'><strong>SUBTOTAL:</strong></td>
                                                     <td class='text-end'><span>&#8369;
@@ -164,13 +175,15 @@
                                                 <tr>
                                                     <td class="text-center" width="25%">
                                                         <p class="text-left"><strong>Delivered by: </strong></p></br></br>
-                                                        <hr class="py-0 my-0"><span class="py-0 my-0 font-small">Signature over
+                                                        <hr class="py-0 my-0"><span class="py-0 my-0 font-small">Signature
+                                                            over
                                                             printed name</span>
                                                     </td>
                                                     <td class="text-center" width="25%">
                                                         <p class="text-left"><strong>Inspected Complete by: </strong></p>
                                                         </br></br>
-                                                        <hr class="py-0 my-0"><span class="py-0 my-0 font-small">Signature over
+                                                        <hr class="py-0 my-0"><span class="py-0 my-0 font-small">Signature
+                                                            over
                                                             printed name</span>
                                                     </td>
                                                     <td class="text-center" width="25%">
@@ -324,6 +337,16 @@
                                                             <td class="text-center text-white" colspan="4"> -</td>
                                                         </tr>
                                                     @endfor
+
+                                                    <tr>
+                                                        <td class="text-center" colspan="4">
+                                                            <span class="text-muted">--Nothing Follow--</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class='table-light'>
+                                                        <td class="text-end" colspan='3'><strong>TOTAL ITEMS:</strong></td>
+                                                        <td class='text-end'><strong>{{ $total_items_count }}</strong></td>
+                                                    </tr>
                                                     <tr class='table-light'>
                                                         <td class="text-end" colspan='3'><strong>SUBTOTAL:</strong></td>
                                                         <td class='text-end'><span>&#8369;
@@ -511,6 +534,16 @@
                                                             <td class="text-center text-white" colspan="4"> -</td>
                                                         </tr>
                                                     @endfor
+
+                                                    <tr>
+                                                        <td class="text-center" colspan="4">
+                                                            <span class="text-muted">--Nothing Follow--</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class='table-light'>
+                                                        <td class="text-end" colspan='3'><strong>TOTAL ITEMS:</strong></td>
+                                                        <td class='text-end'><strong>{{ $total_items_count }}</strong></td>
+                                                    </tr>
                                                     <tr class='table-light'>
                                                         <td class="text-end" colspan='3'><strong>SUBTOTAL:</strong></td>
                                                         <td class='text-end'><span>&#8369;
@@ -698,6 +731,16 @@
                                                             <td class="text-center text-white" colspan="4"> -</td>
                                                         </tr>
                                                     @endfor
+
+                                                    <tr>
+                                                        <td class="text-center" colspan="4">
+                                                            <span class="text-muted">--Nothing Follow--</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class='table-light'>
+                                                        <td class="text-end" colspan='3'><strong>TOTAL ITEMS:</strong></td>
+                                                        <td class='text-end'><strong>{{ $total_items_count }}</strong></td>
+                                                    </tr>
                                                     <tr class='table-light'>
                                                         <td class="text-end" colspan='3'><strong>SUBTOTAL:</strong></td>
                                                         <td class='text-end'><span>&#8369;
