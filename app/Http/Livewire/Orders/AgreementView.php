@@ -34,7 +34,7 @@ class AgreementView extends Component
     public $return_id, $return_qty, $return_price, $return_product;
     public $delivery_client, $delivery_address, $delivery_contact, $delivery_consultant, $delivery_assoc, $delivery_presenter, $delivery_tb, $delivery_distributor, $delivery_code;
     public $price_difference, $price_override;
-    public $mop, $date_of_payment, $amount, $status, $payment_id;
+    public $mop, $date_of_payment, $amount, $status, $payment_id, $delivery_id;
     public $remarks;
 
     public $rsn_dr;
@@ -371,9 +371,9 @@ class AgreementView extends Component
 
             // Associate the payments with the new delivery
             $payments = OrderPaymentHistory::where('oa_id', $this->oa->oa_id)
-                        ->where('status', 'Processed')
-                        ->where('delivery_id', null)
-                        ->get();
+                ->where('status', 'Processed')
+                ->where('delivery_id', null)
+                ->get();
 
             foreach ($payments as $payment) {
                 $payment->delivery_id = $new_dr->info_id;
@@ -414,7 +414,6 @@ class AgreementView extends Component
 
             DB::commit();
             $this->view_dr($transno);
-
         } catch (\Exception $e) {
             DB::rollBack();
             $this->alert('error', 'Failed to create delivery: ' . $e->getMessage());
@@ -483,19 +482,21 @@ class AgreementView extends Component
         $this->validate([
             'payment_id' => 'required',
             'status' => 'required',
+            'delivery_id' => 'nullable', // Can be null for payments without a linked delivery
         ]);
 
         $payment = OrderPaymentHistory::find($this->payment_id);
         $payment->status = $this->status;
         $payment->remarks = $this->remarks;
+        $payment->delivery_id = $this->delivery_id ?: null; // Use null if empty string
         $payment->save();
 
-        $this->reset('status', 'payment_id', 'remarks');
+        $this->reset('status', 'payment_id', 'remarks', 'delivery_id');
 
         $this->alert('success', 'Payment Updated!');
     }
 
-       /**
+    /**
      * Proceed to the payments page with selected delivery
      */
     public function proceedToPayments()

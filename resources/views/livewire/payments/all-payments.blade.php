@@ -157,7 +157,7 @@
                                         <br><small
                                             class="text-muted">{{ date('M d, Y', strtotime($payment->delivery->date)) }}</small>
                                     @else
-                                        <span class="text-muted">No delivery</span>
+                                        <span class="text-muted">Advance Payment</span>
                                     @endif
                                 </td>
                                 <td>{{ $payment->mop }}</td>
@@ -181,25 +181,35 @@
                                     <div class="btn-group btn-group-sm">
                                         @if ($payment->batch_receipt_number)
                                             <a href="{{ route('receipt.print.batch', ['batch_number' => $payment->batch_receipt_number]) }}"
-                                                class="btn btn-primary" target="_blank">
+                                                class="btn btn-primary" target="_blank" data-bs-toggle="tooltip"
+                                                data-bs-title="Print Batch Receipt">
                                                 <i class="fa-solid fa-print"></i>
                                             </a>
                                         @else
                                             <a href="{{ route('receipt.print', ['payment_id' => $payment->id]) }}"
-                                                class="btn btn-primary" target="_blank">
+                                                class="btn btn-primary" target="_blank" data-bs-toggle="tooltip"
+                                                data-bs-title="Print Receipt">
                                                 <i class="fa-solid fa-print"></i>
                                             </a>
                                         @endif
 
                                         <a href="{{ route('receipt.batch', ['oa_id' => $payment->oa_id]) }}"
-                                            class="btn btn-info">
+                                            class="btn btn-info" data-bs-toggle="tooltip"
+                                            data-bs-title="View Batch Receipt">
                                             <i class="fa-solid fa-receipt"></i>
                                         </a>
+
+                                        <button type="button" wire:click="editPayment({{ $payment->id }})"
+                                            class="btn btn-warning" data-bs-toggle="tooltip"
+                                            data-bs-title="Edit Payment">
+                                            <i class="fa-solid fa-edit"></i>
+                                        </button>
 
                                         @if ($payment->status != 'Voided')
                                             <button type="button"
                                                 wire:click="confirmVoidPayment({{ $payment->id }})"
-                                                class="btn btn-danger">
+                                                class="btn btn-danger" data-bs-toggle="tooltip"
+                                                data-bs-title="Void Payment">
                                                 <i class="fa-solid fa-ban"></i>
                                             </button>
                                         @endif
@@ -220,6 +230,86 @@
                 {{ $payments->links() }}
             </div>
         </div>
+
+        <!-- Update Payment Modal -->
+        <div class="modal fade" id="updatePaymentModal" tabindex="-1" aria-labelledby="updatePaymentModalLabel"
+            aria-hidden="true" wire:ignore.self>
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updatePaymentModalLabel">Update Payment</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="mb-3 col-md-6">
+                                <label for="edit_status" class="form-label">Status</label>
+                                <select class="form-select" id="edit_status" wire:model.defer="editStatus">
+                                    <option value="Unposted">Unposted</option>
+                                    <option value="Posted">Posted</option>
+                                    <option value="Commissioned">Commissioned</option>
+                                    <option value="On Hold">On Hold</option>
+                                    <option value="Voided">Voided</option>
+                                </select>
+                            </div>
+                            <div class="mb-3 col-md-6">
+                                <label for="edit_delivery_id" class="form-label">Link to Delivery</label>
+                                <select class="form-select" id="edit_delivery_id" wire:model.defer="editDeliveryId">
+                                    <option value="">-- Advance Payment --</option>
+                                    @foreach ($relatedDeliveries as $delivery)
+                                        <option value="{{ $delivery->info_id }}">
+                                            {{ $delivery->transno }}
+                                            ({{ date('M d, Y', strtotime($delivery->date)) }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="mb-3 col-md-6">
+                                <label for="edit_mop" class="form-label">Payment Mode</label>
+                                <select class="form-select" id="edit_mop" wire:model.defer="editMop">
+                                    @foreach ($paymentModes as $mode)
+                                        <option value="{{ $mode }}">{{ $mode }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="mb-3 col-md-6">
+                                <label for="edit_amount" class="form-label">Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    <input type="number" class="form-control" id="edit_amount" step="0.01"
+                                        wire:model.defer="editAmount">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="mb-3 col-md-6">
+                                <label for="edit_date_of_payment" class="form-label">Payment Date</label>
+                                <input type="date" class="form-control" id="edit_date_of_payment"
+                                    wire:model.defer="editDateOfPayment">
+                            </div>
+                            <div class="mb-3 col-md-6">
+                                <label for="edit_reference_no" class="form-label">Reference Number</label>
+                                <input type="text" class="form-control" id="edit_reference_no"
+                                    wire:model.defer="editReferenceNo">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_remarks" class="form-label">Remarks</label>
+                            <textarea class="form-control" id="edit_remarks" rows="3" wire:model.defer="editRemarks"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" wire:click="updatePayment">Save
+                            Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Update Payment Modal -->
     </div>
 
     @push('scripts')
@@ -246,6 +336,33 @@
                 // Cleanup
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
+            });
+
+            // Show and hide update payment modal
+            document.addEventListener('livewire:load', function() {
+                // Create modal instance once and store it
+                const updatePaymentModal = new bootstrap.Modal(document.getElementById('updatePaymentModal'));
+
+                // Show modal event
+                window.addEventListener('show-update-payment-modal', event => {
+                    updatePaymentModal.show();
+                });
+
+                // Hide modal event
+                window.addEventListener('hide-update-payment-modal', event => {
+                    updatePaymentModal.hide();
+                });
+
+                // Handle modal hidden event to ensure clean state
+                document.getElementById('updatePaymentModal').addEventListener('hidden.bs.modal', function() {
+                    Livewire.emit('resetEditFields');
+                });
+
+                // Initialize tooltips
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                });
             });
         </script>
     @endpush

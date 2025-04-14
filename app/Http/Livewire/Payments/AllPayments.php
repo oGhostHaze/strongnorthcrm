@@ -25,6 +25,19 @@ class AllPayments extends Component
     public $search = '';
     public $deliveryId = '';  // Added filter for delivery
 
+    // Property to hold deliveries related to the current payment
+    public $relatedDeliveries = [];
+
+    // Payment edit properties
+    public $editPaymentId = null;
+    public $editStatus = '';
+    public $editDeliveryId = null;
+    public $editMop = '';
+    public $editAmount = 0;
+    public $editDateOfPayment = '';
+    public $editRemarks = '';
+    public $editReferenceNo = '';
+
     // Totals - computed on demand
     public $totalPosted;
     public $totalUnposted;
@@ -32,7 +45,7 @@ class AllPayments extends Component
     public $totalVoided;
 
     // Listeners for events
-    protected $listeners = ['refreshData', 'confirmVoid'];
+    protected $listeners = ['refreshData', 'confirmVoid', 'resetEditFields'];
 
     public function mount()
     {
@@ -120,28 +133,28 @@ class AllPayments extends Component
         // Apply search filter
         if (!empty($this->search)) {
             $search = $this->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 // Search in payment fields
                 $q->where('receipt_number', 'LIKE', "%{$search}%")
-                  ->orWhere('batch_receipt_number', 'LIKE', "%{$search}%")
-                  ->orWhere('reference_no', 'LIKE', "%{$search}%")
-                  // Search in related order fields
-                  ->orWhereHas('details', function($orderQuery) use ($search) {
-                      $orderQuery->where('oa_number', 'LIKE', "%{$search}%")
-                          ->orWhere('oa_client', 'LIKE', "%{$search}%")
-                          ->orWhere('oa_consultant', 'LIKE', "%{$search}%")
-                          ->orWhere('oa_presenter', 'LIKE', "%{$search}%");
-                  })
-                  // Search in related delivery fields
-                  ->orWhereHas('delivery', function($deliveryQuery) use ($search) {
-                      $deliveryQuery->where('transno', 'LIKE', "%{$search}%")
-                          ->orWhere('client', 'LIKE', "%{$search}%");
-                  });
+                    ->orWhere('batch_receipt_number', 'LIKE', "%{$search}%")
+                    ->orWhere('reference_no', 'LIKE', "%{$search}%")
+                    // Search in related order fields
+                    ->orWhereHas('details', function ($orderQuery) use ($search) {
+                        $orderQuery->where('oa_number', 'LIKE', "%{$search}%")
+                            ->orWhere('oa_client', 'LIKE', "%{$search}%")
+                            ->orWhere('oa_consultant', 'LIKE', "%{$search}%")
+                            ->orWhere('oa_presenter', 'LIKE', "%{$search}%");
+                    })
+                    // Search in related delivery fields
+                    ->orWhereHas('delivery', function ($deliveryQuery) use ($search) {
+                        $deliveryQuery->where('transno', 'LIKE', "%{$search}%")
+                            ->orWhere('client', 'LIKE', "%{$search}%");
+                    });
             });
         }
 
         return $query->orderBy('date_of_payment', 'desc')
-                     ->paginate(15);
+            ->paginate(15);
     }
 
     /**
@@ -240,6 +253,89 @@ class AllPayments extends Component
     }
 
     /**
+     * Load payment data for editing
+     */
+    public function editPayment($paymentId)
+    {
+        $payment = OrderPaymentHistory::find($paymentId);
+
+        if (!$payment) {
+            $this->alert('error', 'Payment not found.');
+            return;
+        }
+
+        $this->editPaymentId = $payment->id;
+        $this->editStatus = $payment->status;
+        $this->editDeliveryId = $payment->delivery_id;
+        $this->editMop = $payment->mop;
+        $this->editAmount = $payment->amount;
+        $this->editDateOfPayment = $payment->date_of_payment;
+        $this->editRemarks = $payment->remarks;
+        $this->editReferenceNo = $payment->reference_no;
+
+        // Get only deliveries related to this payment's order agreement
+        $this->relatedDeliveries = Delivery::where('oa_no', $payment->oa_id)
+            ->select('info_id', 'transno', 'date')
+            ->orderBy('date', 'desc')
+            ->get();
+
+        $this->dispatchBrowserEvent('show-update-payment-modal');
+    }
+
+    /**
+     * Update payment with new data
+     */
+    public function updatePayment()
+    {
+        $this->validate([
+            'editStatus' => 'required',
+            'editMop' => 'required',
+            'editAmount' => 'required|numeric|min:0',
+            'editDateOfPayment' => 'required|date',
+        ]);
+
+        $payment = OrderPaymentHistory::find($this->editPaymentId);
+
+        if (!$payment) {
+            $this->alert('error', 'Payment not found.');
+            return;
+        }
+
+        $payment->status = $this->editStatus;
+        $payment->delivery_id = $this->editDeliveryId;
+        $payment->mop = $this->editMop;
+        $payment->amount = $this->editAmount;
+        $payment->date_of_payment = $this->editDateOfPayment;
+        $payment->remarks = $this->editRemarks;
+        $payment->reference_no = $this->editReferenceNo;
+
+        $payment->save();
+
+        $this->dispatchBrowserEvent('hide-update-payment-modal');
+        $this->alert('success', 'Payment updated successfully.');
+        $this->calculateTotals();
+
+        // Reset edit fields
+        $this->resetEditFields();
+    }
+
+    /**
+     * Reset edit fields (public method for event listener)
+     */
+    public function resetEditFields()
+    {
+        $this->editPaymentId = null;
+        $this->editStatus = '';
+        $this->editDeliveryId = null;
+        $this->editMop = '';
+        $this->editAmount = 0;
+        $this->editDateOfPayment = '';
+        $this->editRemarks = '';
+        $this->editReferenceNo = '';
+        $this->relatedDeliveries = [];
+    }
+
+    /**
      * Export payments to CSV
      */
     public function export()
@@ -268,23 +364,23 @@ class AllPayments extends Component
         // Apply search filter
         if (!empty($this->search)) {
             $search = $this->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 // Search in payment fields
                 $q->where('receipt_number', 'LIKE', "%{$search}%")
-                  ->orWhere('batch_receipt_number', 'LIKE', "%{$search}%")
-                  ->orWhere('reference_no', 'LIKE', "%{$search}%")
-                  // Search in related order fields
-                  ->orWhereHas('details', function($orderQuery) use ($search) {
-                      $orderQuery->where('oa_number', 'LIKE', "%{$search}%")
-                          ->orWhere('oa_client', 'LIKE', "%{$search}%")
-                          ->orWhere('oa_consultant', 'LIKE', "%{$search}%")
-                          ->orWhere('oa_presenter', 'LIKE', "%{$search}%");
-                  })
-                  // Search in related delivery fields
-                  ->orWhereHas('delivery', function($deliveryQuery) use ($search) {
-                      $deliveryQuery->where('transno', 'LIKE', "%{$search}%")
-                          ->orWhere('client', 'LIKE', "%{$search}%");
-                  });
+                    ->orWhere('batch_receipt_number', 'LIKE', "%{$search}%")
+                    ->orWhere('reference_no', 'LIKE', "%{$search}%")
+                    // Search in related order fields
+                    ->orWhereHas('details', function ($orderQuery) use ($search) {
+                        $orderQuery->where('oa_number', 'LIKE', "%{$search}%")
+                            ->orWhere('oa_client', 'LIKE', "%{$search}%")
+                            ->orWhere('oa_consultant', 'LIKE', "%{$search}%")
+                            ->orWhere('oa_presenter', 'LIKE', "%{$search}%");
+                    })
+                    // Search in related delivery fields
+                    ->orWhereHas('delivery', function ($deliveryQuery) use ($search) {
+                        $deliveryQuery->where('transno', 'LIKE', "%{$search}%")
+                            ->orWhere('client', 'LIKE', "%{$search}%");
+                    });
             });
         }
 

@@ -121,8 +121,47 @@
 
     <!-- Your custom scripts -->
     @stack('scripts')
-
     <script>
+        // Initialize tooltips properly on page load and after Livewire updates
+        document.addEventListener('livewire:load', function() {
+            initTooltips();
+
+            // Handle Livewire updates
+            Livewire.hook('message.processed', (message, component) => {
+                // Destroy all existing tooltips first
+                destroyTooltips();
+
+                // Reinitialize tooltips
+                setTimeout(() => {
+                    initTooltips();
+                }, 100);
+            });
+        });
+
+        // Function to initialize tooltips
+        function initTooltips() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.forEach(el => {
+                new bootstrap.Tooltip(el, {
+                    trigger: 'hover',
+                    placement: 'top',
+                    container: 'body',
+                    boundary: 'window'
+                });
+            });
+        }
+
+        // Function to destroy tooltips
+        function destroyTooltips() {
+            const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            tooltips.forEach(element => {
+                const tooltip = bootstrap.Tooltip.getInstance(element);
+                if (tooltip) {
+                    tooltip.dispose();
+                }
+            });
+        }
+
         window.addEventListener('success', event => {
             Swal.fire({
                 icon: 'success',

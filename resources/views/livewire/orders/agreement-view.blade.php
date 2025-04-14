@@ -506,7 +506,7 @@
                                 <tbody>
                                     @forelse ($payments as $payment)
                                         <tr style="cursor: pointer"
-                                            onclick="update_payment(`{{ $payment->id }}`, `{{ $payment->status }}`, `{{ $payment->remarks }}`)">
+                                            onclick="update_payment(`{{ $payment->id }}`, `{{ $payment->status }}`, `{{ $payment->remarks }}`, `{{ $payment->delivery_id }}`)">
                                             <td>
                                                 <div class="d-flex justify-content-between">
                                                     <div>
@@ -515,7 +515,10 @@
                                                         <span
                                                             class="badge text-small bg-secondary">{{ $payment->mop }}</span>
                                                         @if ($payment->delivery_id)
-                                                            <span class="badge bg-info">Linked to Delivery</span>
+                                                            <span
+                                                                class="badge bg-info">{{ $payment->delivery->transno }}</span>
+                                                        @else
+                                                            <span class="badge bg-secondary">Advance Payment</span>
                                                         @endif
                                                         @if ($payment->remarks)
                                                             <br>
@@ -732,6 +735,17 @@
                         </select>
                     </div>
                     <div class="mb-3">
+                        <label for="delivery_id" class="form-label">Link to Delivery</label>
+                        <select class="form-select" id="delivery_id" wire:model="delivery_id">
+                            <option value="">-- Advance Payment --</option>
+                            @foreach ($oa->drs()->orderByDesc('dr_count')->get() as $dr)
+                                <option value="{{ $dr->info_id }}">
+                                    {{ $dr->transno }} [{{ $dr->code }}] - {{ $dr->date }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label for="remarks">Remarks</label>
                         <textarea type="text" class="form-control" id="remarks" wire:model="remarks"></textarea>
                     </div>
@@ -781,10 +795,11 @@
 
 @push('scripts')
     <script>
-        function update_payment(id, status, remarks) {
+        function update_payment(id, status, remarks, delivery_id = null) {
             @this.set('payment_id', id);
             @this.set('status', status);
             @this.set('remarks', remarks);
+            @this.set('delivery_id', delivery_id);
 
             $('#updatePaymentModal').modal('toggle');
         }
