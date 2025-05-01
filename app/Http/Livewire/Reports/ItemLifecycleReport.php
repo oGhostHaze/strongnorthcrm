@@ -165,10 +165,10 @@ class ItemLifecycleReport extends Component
                 'oa_number' => $item->details->oa_number,
                 'oa_date' => $item->details->oa_date,
                 'client' => $item->details->oa_client,
-                'ordered_qty' => $item->item_qty,
+                'ordered_qty' => $item->released + $item->returned, // Compute based on released and returned
                 'released_qty' => $item->released,
                 'returned_qty' => $item->returned,
-                'pending_qty' => $item->item_qty - ($item->released + $item->returned),
+                'pending_qty' => $item->item_qty, // Original item quantity from the order
                 'deliveries' => $deliveryInfo,
                 'returns' => $returnInfo,
                 'price' => $item->item_price,
@@ -226,10 +226,10 @@ class ItemLifecycleReport extends Component
                 'oa_number' => $gift->details->oa_number,
                 'oa_date' => $gift->details->oa_date,
                 'client' => $gift->details->oa_client,
-                'ordered_qty' => $gift->item_qty,
+                'ordered_qty' => $gift->released + $gift->returned, // Compute based on released and returned
                 'released_qty' => $gift->released,
                 'returned_qty' => $gift->returned,
-                'pending_qty' => $gift->item_qty - ($gift->released + $gift->returned),
+                'pending_qty' => $gift->item_qty, // Original item quantity from the order
                 'deliveries' => $deliveryInfo,
                 'returns' => $returnInfo,
                 'price' => $gift->item_price,
