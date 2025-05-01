@@ -24,6 +24,7 @@
                         <label for="filter_type">Status Filter</label>
                         <select wire:model="filter_type" id="filter_type" class="form-select">
                             <option value="all">All Items</option>
+                            <option value="pending">Pending/To Follow Items</option>
                             <option value="delivered">Delivered Items</option>
                             <option value="returned">Returned Items</option>
                         </select>
@@ -84,6 +85,7 @@
                             <th>Ordered</th>
                             <th>Released</th>
                             <th>Returned</th>
+                            <th>Pending</th>
                             <th>Delivery Details</th>
                             <th>Return Details</th>
                         </tr>
@@ -105,6 +107,7 @@
                                 <td class="text-center">{{ $item['ordered_qty'] }}</td>
                                 <td class="text-center">{{ $item['released_qty'] }}</td>
                                 <td class="text-center">{{ $item['returned_qty'] }}</td>
+                                <td class="text-center">{{ $item['pending_qty'] }}</td>
                                 <td>
                                     @if (count($item['deliveries']) > 0)
                                         @foreach ($item['deliveries'] as $delivery)
