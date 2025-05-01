@@ -157,6 +157,9 @@
                             <a class="dropdown-item" href="{{ route('inventory.all') }}">
                                 Product Inventory
                             </a>
+                            <a class="dropdown-item" href="{{ route('rep.item-lifecycle') }}">
+                                Item Lifecycle Report
+                            </a>
                             <a class="dropdown-item" href="{{ route('inventory.per-dr') }}">
                                 Per Delivery Receipt
                             </a>

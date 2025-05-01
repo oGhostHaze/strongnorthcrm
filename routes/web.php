@@ -1,47 +1,49 @@
 <?php
 
-use App\Http\Livewire\Home;
-use App\Http\Livewire\Sets\Setlist;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
-use App\Http\Livewire\Inventories\All;
-use App\Http\Livewire\Servicing\SrList;
-use App\Http\Livewire\Servicing\SrView;
-use App\Http\Livewire\Sets\Composition;
-use App\Http\Livewire\Inventories\PerDr;
-use App\Http\Livewire\Orders\Agreements;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\SignaturePadController;
 use App\Http\Livewire\Clients\ClientList;
+use App\Http\Livewire\CookingShows\PendingOrders;
+use App\Http\Livewire\CookingShows\ViewCsOrder;
+use App\Http\Livewire\Deliveries\DeliveryList;
+use App\Http\Livewire\Deliveries\DeliveryView;
+use App\Http\Livewire\Employees\EmployeeList;
+use App\Http\Livewire\Home;
+use App\Http\Livewire\Inventories\All;
+use App\Http\Livewire\Inventories\MerchandiseAll;
+use App\Http\Livewire\Inventories\PerDr;
+use App\Http\Livewire\Inventories\SupplyAll;
+use App\Http\Livewire\Merchandise\MerchDeliveryView;
+use App\Http\Livewire\Merchandise\MerchItems;
+use App\Http\Livewire\Merchandise\MerchOrders;
+use App\Http\Livewire\Merchandise\MerchOrdersView;
+use App\Http\Livewire\Merchandise\MerchRsnView;
+use App\Http\Livewire\Merchandise\MerchStockIn;
+use App\Http\Livewire\Orders\Agreements;
 use App\Http\Livewire\Orders\AgreementView;
+use App\Http\Livewire\Orders\BatchAddPayments;
+use App\Http\Livewire\Orders\Returns\Listreturn;
+use App\Http\Livewire\Orders\Returns\Viewreturn;
 use App\Http\Livewire\Payments\AllPayments;
 use App\Http\Livewire\Products\ProductList;
 use App\Http\Livewire\Products\StockinList;
-use App\Http\Livewire\Inventories\SupplyAll;
-use App\Http\Livewire\Reports\PaymentReport;
-use App\Http\Livewire\Employees\EmployeeList;
-use App\Http\Livewire\Merchandise\MerchItems;
-use App\Http\Livewire\Deliveries\DeliveryList;
-use App\Http\Livewire\Deliveries\DeliveryView;
-use App\Http\Livewire\Merchandise\MerchOrders;
-use App\Http\Livewire\Orders\BatchAddPayments;
-use App\Http\Livewire\Supplies\SupplyItemList;
-use App\Http\Livewire\Supplies\SupplyLocation;
-use App\Http\Livewire\CookingShows\ViewCsOrder;
-use App\Http\Livewire\Merchandise\MerchRsnView;
-use App\Http\Livewire\Merchandise\MerchStockIn;
-use League\CommonMark\Delimiter\DelimiterStack;
-use App\Http\Controllers\SignaturePadController;
-use App\Http\Livewire\Orders\Returns\Listreturn;
-use App\Http\Livewire\Orders\Returns\Viewreturn;
-use App\Http\Livewire\Supplies\SupplyCategories;
-use App\Http\Livewire\CookingShows\PendingOrders;
-use App\Http\Livewire\Inventories\MerchandiseAll;
-use App\Http\Livewire\References\MeasurementUnit;
-use App\Http\Livewire\Merchandise\MerchOrdersView;
-use App\Http\Livewire\Supplies\SupplyDisposedItems;
-use App\Http\Livewire\Merchandise\MerchDeliveryView;
 use App\Http\Livewire\Products\StockinReportFiltered;
 use App\Http\Livewire\References\ManageModeOfPayment;
+use App\Http\Livewire\References\MeasurementUnit;
+use App\Http\Livewire\Reports\ItemLifecycleReport;
+use App\Http\Livewire\Reports\PaymentReport;
+use App\Http\Livewire\Servicing\SrList;
+use App\Http\Livewire\Servicing\SrView;
+use App\Http\Livewire\Sets\Composition;
+use App\Http\Livewire\Sets\Setlist;
+use App\Http\Livewire\Supplies\SupplyCategories;
+use App\Http\Livewire\Supplies\SupplyDisposedItems;
+use App\Http\Livewire\Supplies\SupplyItemList;
+use App\Http\Livewire\Supplies\SupplyLocation;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use League\CommonMark\Delimiter\DelimiterStack;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -129,6 +131,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('/reports')->name('rep.')->group(function () {
         Route::get('/order-payments', PaymentReport::class)->name('payments');
+        Route::get('/item-lifecycle', ItemLifecycleReport::class)->name('item-lifecycle');
     });
 
     Route::get('signaturepad/{oa_id}', [SignaturePadController::class, 'index'])->name('signaturepad');
