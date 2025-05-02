@@ -35,19 +35,19 @@ class DeliveryView extends Component
         $this->delivery->price_override = $this->price_override;
         $this->delivery->save();
         $items = $this->delivery->items()->get();
-        foreach($items as $item){
+        foreach ($items as $item) {
             $item->item_total = 0;
             $item->save();
         }
-        $this->dispatchBrowserEvent('success', 'Total price successfully overriden for DR #'.$this->delivery->transno);
+        $this->dispatchBrowserEvent('success', 'Total price successfully overriden for DR #' . $this->delivery->transno);
     }
 
     public function add_pricediff()
     {
-        $this->validate(['price_difference'=>'required']);
+        $this->validate(['price_difference' => 'required']);
         $this->delivery->price_diff = $this->price_difference;
         $this->delivery->save();
-        $this->dispatchBrowserEvent('success', 'Updated price difference for DR #'.$this->delivery->transno);
+        $this->dispatchBrowserEvent('success', 'Updated price difference for DR #' . $this->delivery->transno);
     }
 
     public function cancel_override()
@@ -55,11 +55,11 @@ class DeliveryView extends Component
         $this->delivery->price_override = null;
         $this->delivery->save();
         $items = $this->delivery->items()->get();
-        foreach($items as $item){
+        foreach ($items as $item) {
             $item->item_total = (float)$item->item_qty * (float)$item->item_price;
             $item->save();
         }
-        $this->dispatchBrowserEvent('success', 'Total price successfully overriden for DR #'.$this->delivery->transno);
+        $this->dispatchBrowserEvent('success', 'Total price successfully overriden for DR #' . $this->delivery->transno);
     }
 
     public function print_this()
@@ -72,11 +72,11 @@ class DeliveryView extends Component
     {
         $item = DeliveryItem::find($item_id);
         $product = Product::find($item->product_id);
-        if($product->product_qty >= $item->item_qty){
+        if ($product->product_qty >= $item->item_qty) {
             $item->status = 'For Releasing';
             $item->save();
             $this->dispatchBrowserEvent('success', 'Item Released');
-        }else{
+        } else {
             $this->dispatchBrowserEvent('error', 'Item is unable to be released due to insufficient stocks.');
         }
     }
@@ -93,11 +93,11 @@ class DeliveryView extends Component
     {
         $gift = DeliveryGift::find($gift_id);
         $product = Product::find($gift->product_id);
-        if($product->product_qty >= $gift->item_qty){
+        if ($product->product_qty >= $gift->item_qty) {
             $gift->status = 'For Releasing';
             $gift->save();
             $this->dispatchBrowserEvent('success', 'Gift Released');
-        }else{
+        } else {
             $this->dispatchBrowserEvent('error', 'Gift is unable to be released due to insufficient stocks.');
         }
     }
@@ -116,13 +116,13 @@ class DeliveryView extends Component
         Artisan::call('inventory:begin');
 
         $items = $this->delivery->items()->where('status', 'For Releasing')->get();
-        foreach($items as $item){
+        foreach ($items as $item) {
             $product = Product::find($item->product_id);
-            if($product->product_qty >= $item->item_qty){
+            if ($product->product_qty >= $item->item_qty) {
                 $product->product_qty -= $item->item_qty;
                 $product->save();
 
-                $order = $this->delivery->oa->items()->where('product_id', $item->product_id)->first();
+                $order = $this->delivery->oa->items()->where('product_id', $item->product_id)->where('item_qty', '>', 0)->first();
                 $order->item_qty -= $item->item_qty;
                 $order->released += $item->item_qty;
                 $order->save();
@@ -136,7 +136,7 @@ class DeliveryView extends Component
                 $inventory_item->save();
 
                 $item->status = 'Released';
-            }else{
+            } else {
                 $item->status = 'To Follow';
             }
             $item->save();
@@ -144,13 +144,13 @@ class DeliveryView extends Component
 
 
         $gifts = $this->delivery->gifts()->where('status', 'For Releasing')->get();
-        foreach($gifts as $gift){
+        foreach ($gifts as $gift) {
             $product = Product::find($gift->product_id);
-            if($product->product_qty >= $gift->item_qty){
+            if ($product->product_qty >= $gift->item_qty) {
                 $product->product_qty -= $gift->item_qty;
                 $product->save();
 
-                $order = $this->delivery->oa->gifts()->where('product_id', $gift->product_id)->first();
+                $order = $this->delivery->oa->gifts()->where('product_id', $gift->product_id)->where('item_qty', '>', 0)->first();
                 $order->item_qty -= $gift->item_qty;
                 $order->released += $gift->item_qty;
                 $order->save();
@@ -164,7 +164,7 @@ class DeliveryView extends Component
                 $inventory_item->save();
 
                 $gift->status = 'Released';
-            }else{
+            } else {
                 $gift->status = 'To Follow';
             }
             $gift->save();
