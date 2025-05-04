@@ -256,13 +256,114 @@ class ItemLifecycleReport extends Component
 
     public function exportCsv()
     {
-        // Export logic would go here
-        $this->dispatchBrowserEvent('alert', ['type' => 'success', 'message' => 'Report exported to CSV']);
+        // Execute the render method to get the filtered data
+        $renderData = $this->render();
+        $results = $renderData->getData()['results']->values();
+
+        $headers = [
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Content-type'        => 'text/csv',
+            'Content-Disposition' => 'attachment; filename=item-lifecycle-report-' . now()->format('Y-m-d-H-i-s') . '.csv',
+            'Expires'             => '0',
+            'Pragma'              => 'public'
+        ];
+
+        $callback = function () use ($results) {
+            $file = fopen('php://output', 'w');
+
+            // Add CSV headers
+            fputcsv($file, [
+                'Item Type',
+                'Item Description',
+                'Order Agreement',
+                'Date',
+                'Client',
+                'Ordered',
+                'Released',
+                'Returned',
+                'Pending',
+                'Delivery Details',
+                'Return Details'
+            ]);
+
+            // Add data rows
+            foreach ($results as $item) {
+                $deliveryInfo = '';
+                if (count($item['deliveries']) > 0) {
+                    $deliveries = [];
+                    foreach ($item['deliveries'] as $delivery) {
+                        $deliveries[] = $delivery['transno'] . ' (' . $delivery['date'] . ' Qty:' . $delivery['qty'] . ' - ' . $delivery['code'] . ')';
+                    }
+                    $deliveryInfo = implode('; ', $deliveries);
+                }
+
+                $returnInfo = '';
+                if (count($item['returns']) > 0) {
+                    $returns = [];
+                    foreach ($item['returns'] as $return) {
+                        $returnDetail = $return['return_no'] . ' (' . $return['date'] . ' Qty:' . $return['qty'] . ')';
+                        if ($return['reason']) {
+                            $returnDetail .= ' Reason: ' . $return['reason'];
+                        }
+                        $returns[] = $returnDetail;
+                    }
+                    $returnInfo = implode('; ', $returns);
+                }
+
+                fputcsv($file, [
+                    $item['type'],
+                    $item['product_description'],
+                    $item['oa_number'],
+                    $item['oa_date'],
+                    $item['client'],
+                    $item['ordered_qty'],
+                    $item['released_qty'],
+                    $item['returned_qty'],
+                    $item['pending_qty'],
+                    $deliveryInfo ?: 'No deliveries',
+                    $returnInfo ?: 'No returns'
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function exportPdf()
     {
-        // Export logic would go here
-        $this->dispatchBrowserEvent('alert', ['type' => 'success', 'message' => 'Report exported to PDF']);
+        // Execute the render method to get the filtered data
+        $renderData = $this->render();
+        $results = $renderData->getData()['results']->values();
+
+        // You should install a PDF library like TCPDF or DOMPDF
+        // Here's a basic implementation using TCPDF
+
+        // First, make sure to require TCPDF in your composer.json
+        // You'll need to install TCPDF or DOMPDF for this to work
+
+        // For now, let's create a simple HTML view for PDF
+        $html = view('livewire.reports.item-lifecycle-pdf', [
+            'results' => $results,
+            'start_date' => $this->start_date,
+            'end_date' => $this->end_date,
+            'filter_type' => $this->filter_type,
+            'client_name' => $this->client_name,
+            'search' => $this->search
+        ])->render();
+
+        // If DOMPDF is installed, you can use:
+        // $pdf = new Dompdf();
+        // $pdf->loadHtml($html);
+        // $pdf->setPaper('A4', 'landscape');
+        // $pdf->render();
+        // return $pdf->stream('item-lifecycle-report-' . now()->format('Y-m-d') . '.pdf');
+
+        // For now, just show an alert that PDF export needs DOMPDF to be installed
+        $this->dispatchBrowserEvent('alert', [
+            'type' => 'warning',
+            'message' => 'Please install DOMPDF package to enable PDF export functionality'
+        ]);
     }
 }
