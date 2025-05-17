@@ -167,7 +167,7 @@
                 <tr>
                     <td>{{ date('Y-m-d', strtotime($payment->date_of_payment)) }}</td>
                     <td>{{ $payment->mop == 'CHECK' ? $payment->reference_no : '-' }}</td>
-                    <td>{{ $payment->reference_no ?? $payment->details->oa_number }}</td>
+                    <td>{{ $payment->details->oa_number }}</td>
                     <td>{{ number_format($payment->amount, 2) }}</td>
                 </tr>
                 @for ($i = 0; $i < 15; $i++)
