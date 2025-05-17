@@ -83,16 +83,18 @@
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
+                                        <th>MOP</th>
                                         <th>DATE ISSUED</th>
-                                        <th>CHECK NO.</th>
-                                        <th>REFERENCE NO.</th>
+                                        <th>CHECK/REFERENCE NO.</th>
+                                        <th>ORDER NO.</th>
                                         <th>AMOUNT</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
+                                        <td>{{ $payment->mop }}</td>
                                         <td>{{ date('Y-m-d', strtotime($payment->date_of_payment)) }}</td>
-                                        <td>{{ $payment->mop == 'CHECK' ? $payment->reference_no : '-' }}</td>
+                                        <td>{{ $payment->reference_no ?? '-' }}</td>
                                         <td>{{ $payment->reference_no ?? $payment->details->oa_number }}</td>
                                         <td>{{ number_format($payment->amount, 2) }}</td>
                                     </tr>
@@ -102,10 +104,11 @@
                                             <td>&nbsp;</td>
                                             <td>&nbsp;</td>
                                             <td>&nbsp;</td>
+                                            <td>&nbsp;</td>
                                         </tr>
                                     @endfor
                                     <tr>
-                                        <td colspan="3" class="text-right"><strong>TOTAL AMOUNT</strong></td>
+                                        <td colspan="4" class="text-right"><strong>TOTAL AMOUNT</strong></td>
                                         <td><strong>{{ number_format($payment->amount, 2) }}</strong></td>
                                     </tr>
                                 </tbody>
