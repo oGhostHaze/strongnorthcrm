@@ -155,7 +155,6 @@
         </div>
 
         <table>
-
             <thead>
                 <tr>
                     <th>MOP</th>
@@ -166,14 +165,17 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>{{ $payment->mop }}</td>
-                    <td>{{ date('Y-m-d', strtotime($payment->date_of_payment)) }}</td>
-                    <td>{{ $payment->reference_no ?? '-' }}</td>
-                    <td>{{ $payment->reference_no ?? $payment->details->oa_number }}</td>
-                    <td>{{ number_format($payment->amount, 2) }}</td>
-                </tr>
-                @for ($i = 0; $i < 20; $i++)
+                @foreach ($batch_payments as $payment)
+                    <tr>
+                        <td>{{ $payment->mop }}</td>
+                        <td>{{ date('Y-m-d', strtotime($payment->date_of_payment)) }}</td>
+                        <td>{{ $payment->reference_no ?? '-' }}</td>
+                        <td>{{ $payment->reference_no ?? $payment->details->oa_number }}</td>
+                        <td>{{ number_format($payment->amount, 2) }}</td>
+                    </tr>
+                @endforeach
+
+                @for ($i = 0; $i < 15 - count($batch_payments); $i++)
                     <tr>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
@@ -182,9 +184,10 @@
                         <td>&nbsp;</td>
                     </tr>
                 @endfor
+
                 <tr>
-                    <td colspan="4" class="text-right"><strong>TOTAL AMOUNT</strong></td>
-                    <td><strong>{{ number_format($payment->amount, 2) }}</strong></td>
+                    <td colspan="4" style="text-align:right"><strong>TOTAL AMOUNT</strong></td>
+                    <td><strong>{{ number_format($batch_total, 2) }}</strong></td>
                 </tr>
             </tbody>
         </table>
