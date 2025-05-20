@@ -425,7 +425,7 @@
                                             <option value="INC-LMC">INC-LMC</option>
                                             <option value="WARRANTY REPLACEMENT">WARRANTY REPLACEMENT</option>
                                             <option value="LTD-WTY">LTD-WTY</option> --}}
-                                            <option value="DEMO KIT">GIFT</option>
+                                            <option value="GIFT">GIFT</option>
                                             <option value="DEMO KIT">DEMO KIT</option>
                                             <option value="DISPLAY">DISPLAY</option>
                                         </select>
