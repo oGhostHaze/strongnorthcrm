@@ -15,10 +15,10 @@
                                 @endcan
                                 @can('approve-return-order')
                                     @if ($rsn->status == 'For Approval')
-                                        <a href="#" class="btn btn-sm btn-secondary ms-2"
+                                        <a href="#" class="btn btn-sm btn-success ms-2"
                                             wire:click="confirm_approval('Approve')"
                                             wire:loading.attr='disabled'>Approve</a>
-                                        <a href="#" class="btn btn-sm btn-secondary ms-2"
+                                        <a href="#" class="btn btn-sm btn-danger ms-2"
                                             wire:click="confirm_approval('Decline')"
                                             wire:loading.attr='disabled'>Decline</a>
                                     @endif
