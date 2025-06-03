@@ -141,13 +141,13 @@
                                     @if ($payment->batch_receipt_number)
                                         <a
                                             href="{{ route('receipt.show.batch', ['batch_number' => $payment->batch_receipt_number]) }}">
-                                            {{ $payment->receipt_number }}
+                                            {{ $payment->getFormattedReceiptNumber() }}
                                         </a>
                                         <br><small class="text-muted">Batch:
                                             {{ $payment->batch_receipt_number }}</small>
                                     @else
                                         <a href="{{ route('receipt.show', ['payment_id' => $payment->id]) }}">
-                                            {{ $payment->receipt_number ?? 'PR-' . str_pad($payment->id, 6, '0', STR_PAD_LEFT) }}
+                                            {{ $payment->getFormattedReceiptNumber() }}
                                         </a>
                                     @endif
                                 </td>
@@ -235,6 +235,12 @@
                                         </button>
 
                                         @if ($payment->status != 'Voided')
+                                            <button type="button" wire:click="initiateTransfer({{ $payment->id }})"
+                                                class="btn btn-secondary" data-bs-toggle="tooltip"
+                                                data-bs-title="Transfer to Another Order">
+                                                <i class="fa-solid fa-exchange-alt"></i>
+                                            </button>
+
                                             <button type="button"
                                                 wire:click="confirmVoidPayment({{ $payment->id }})"
                                                 class="btn btn-danger" data-bs-toggle="tooltip"
@@ -339,18 +345,127 @@
             </div>
         </div>
         <!-- End Update Payment Modal -->
+
+        <!-- Transfer Payment Modal -->
+        <div class="modal fade" id="transferPaymentModal" tabindex="-1" aria-labelledby="transferPaymentModalLabel"
+            aria-hidden="true" wire:ignore.self>
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="transferPaymentModalLabel">Transfer Payment to Another Order</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @if ($selectedPaymentForTransfer)
+                            <!-- Payment Information -->
+                            <div class="mb-4 alert alert-info">
+                                <h6 class="mb-1"><strong>Payment to Transfer:</strong></h6>
+                                <p class="mb-1">Amount:
+                                    <strong>₱{{ number_format($selectedPaymentForTransfer->amount, 2) }}</strong>
+                                </p>
+                                <p class="mb-1">From Order:
+                                    <strong>{{ $selectedPaymentForTransfer->details->oa_number }}</strong>
+                                </p>
+                                <p class="mb-0">Client:
+                                    <strong>{{ $selectedPaymentForTransfer->details->oa_client }}</strong>
+                                </p>
+                            </div>
+
+                            <!-- Search for Target Order -->
+                            <div class="mb-3">
+                                <label for="transfer_order_search" class="form-label">Search for Target Order</label>
+                                <input type="text" class="form-control" id="transfer_order_search"
+                                    wire:model.debounce.300ms="transferOrderSearch"
+                                    placeholder="Search by Order Number, Client Name, Consultant, or Presenter...">
+                                <div class="form-text">Type at least 2 characters to search</div>
+                            </div>
+
+                            <!-- Search Results -->
+                            @if (count($transferSearchResults) > 0)
+                                <div class="mb-3">
+                                    <label class="form-label">Select Target Order:</label>
+                                    <div class="list-group" style="max-height: 200px; overflow-y: auto;">
+                                        @foreach ($transferSearchResults as $order)
+                                            <button type="button" class="list-group-item list-group-item-action"
+                                                wire:click="selectOrderForTransfer({{ $order->oa_id }}, '{{ $order->oa_number }}')">
+                                                <div class="d-flex w-100 justify-content-between">
+                                                    <h6 class="mb-1">{{ $order->oa_number }}</h6>
+                                                    <small>{{ date('M d, Y', strtotime($order->oa_date)) }}</small>
+                                                </div>
+                                                <p class="mb-1">{{ $order->oa_client }}</p>
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @elseif(strlen($transferOrderSearch) >= 2)
+                                <div class="mb-3 alert alert-warning">
+                                    No orders found matching "{{ $transferOrderSearch }}"
+                                </div>
+                            @endif
+
+                            <!-- Selected Target Order -->
+                            @if ($transferToOrderId)
+                                <div class="mb-3 alert alert-success">
+                                    <h6 class="mb-1"><strong>Selected Target Order:</strong></h6>
+                                    <p class="mb-0">{{ $transferToOrderNumber }}</p>
+                                </div>
+                            @endif
+
+                            <!-- Transfer Reason -->
+                            <div class="mb-3">
+                                <label for="transfer_remarks" class="form-label">Transfer Reason (Optional)</label>
+                                <textarea class="form-control" id="transfer_remarks" rows="3" wire:model.defer="transferRemarks"
+                                    placeholder="Enter reason for transferring this payment..."></textarea>
+                            </div>
+                        @endif
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" wire:click="confirmTransferPayment"
+                            @if (!$transferToOrderId) disabled @endif>
+                            Transfer Payment
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Transfer Payment Modal -->
     </div>
 
     @push('scripts')
         <script>
+            // Success and error event listeners (from your app.blade.php)
+            window.addEventListener('success', event => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: event.detail,
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            });
+
+            window.addEventListener('error', event => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Something went wrong!',
+                    text: event.detail,
+                    showConfirmButton: false,
+                });
+            });
+
+            // Select2 focus handler (from your app.blade.php)
+            $(document).on('select2:open', () => {
+                document.querySelector('.select2-search__field').focus();
+            });
+
             // Handle CSV download event
             window.addEventListener('download-csv', event => {
                 const {
                     content,
                     fileName
                 } = event.detail;
-
-                // Create blob and download link
                 const blob = new Blob([content], {
                     type: 'text/csv'
                 });
@@ -361,58 +476,131 @@
                 a.download = fileName;
                 document.body.appendChild(a);
                 a.click();
-
-                // Cleanup
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
             });
 
-            // Show and hide update payment modal
-            document.addEventListener('livewire:load', function() {
-                Livewire.hook('message.processed', (message, component) => {
-                    const deliveryFilter = document.getElementById('delivery_filter');
-                    const deliveryIdContainer = document.getElementById('delivery_id').closest('.col-md-2');
+            // Handle delivery filter visibility
+            function toggleDeliveryIdField() {
+                const deliveryFilter = document.getElementById('delivery_filter');
+                const deliveryIdContainer = document.getElementById('delivery_id')?.closest('.col-md-2');
 
-                    if (deliveryFilter) {
-                        // Initial state
-                        if (deliveryFilter.value !== 'specific') {
-                            deliveryIdContainer.style.display = 'none';
-                        } else {
-                            deliveryIdContainer.style.display = 'block';
+                if (deliveryFilter && deliveryIdContainer) {
+                    deliveryIdContainer.style.display = deliveryFilter.value === 'specific' ? 'block' : 'none';
+                }
+            }
+
+            // Initialize tooltips function
+            function initializeTooltips() {
+                // Dispose existing tooltips more safely
+                document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(element => {
+                    try {
+                        const existingTooltip = bootstrap.Tooltip.getInstance(element);
+                        if (existingTooltip) {
+                            existingTooltip.dispose();
                         }
-
-                        // Add event listener
-                        deliveryFilter.addEventListener('change', function() {
-                            if (this.value !== 'specific') {
-                                deliveryIdContainer.style.display = 'none';
-                            } else {
-                                deliveryIdContainer.style.display = 'block';
-                            }
-                        });
+                    } catch (error) {
+                        // Silently ignore disposal errors for elements that no longer exist
+                        console.debug('Tooltip disposal error (safe to ignore):', error);
                     }
                 });
-                // Create modal instance once and store it
+
+                // Initialize new tooltips
+                document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(element => {
+                    try {
+                        new bootstrap.Tooltip(element);
+                    } catch (error) {
+                        console.debug('Tooltip initialization error:', error);
+                    }
+                });
+            }
+
+            // Safely dispose all tooltips
+            function disposeAllTooltips() {
+                // Get all tooltip instances and dispose them safely
+                const tooltipElements = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+                tooltipElements.forEach(element => {
+                    try {
+                        const tooltip = bootstrap.Tooltip.getInstance(element);
+                        if (tooltip) {
+                            tooltip.dispose();
+                        }
+                    } catch (error) {
+                        // Element might have been removed, ignore the error
+                    }
+                });
+
+                // Also check for any orphaned tooltip elements
+                document.querySelectorAll('.tooltip').forEach(tooltipElement => {
+                    try {
+                        if (tooltipElement.parentNode) {
+                            tooltipElement.parentNode.removeChild(tooltipElement);
+                        }
+                    } catch (error) {
+                        // Ignore cleanup errors
+                    }
+                });
+            }
+
+            // DOMContentLoaded event
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize delivery filter
+                toggleDeliveryIdField();
+
+                // Add event listener for delivery filter change
+                const deliveryFilter = document.getElementById('delivery_filter');
+                if (deliveryFilter) {
+                    deliveryFilter.addEventListener('change', toggleDeliveryIdField);
+                }
+
+                // Initialize tooltips on load
+                initializeTooltips();
+            });
+
+            // Livewire event handlers
+            document.addEventListener('livewire:load', function() {
+                // Initialize modal instances
                 const updatePaymentModal = new bootstrap.Modal(document.getElementById('updatePaymentModal'));
+                const transferPaymentModal = new bootstrap.Modal(document.getElementById('transferPaymentModal'));
 
-                // Show modal event
-                window.addEventListener('show-update-payment-modal', event => {
-                    updatePaymentModal.show();
-                });
+                // Modal event handlers
+                window.addEventListener('show-update-payment-modal', () => updatePaymentModal.show());
+                window.addEventListener('hide-update-payment-modal', () => updatePaymentModal.hide());
+                window.addEventListener('show-transfer-payment-modal', () => transferPaymentModal.show());
+                window.addEventListener('hide-transfer-payment-modal', () => transferPaymentModal.hide());
 
-                // Hide modal event
-                window.addEventListener('hide-update-payment-modal', event => {
-                    updatePaymentModal.hide();
-                });
-
-                // Handle modal hidden event to ensure clean state
+                // Modal cleanup on hide
                 document.getElementById('updatePaymentModal').addEventListener('hidden.bs.modal', function() {
-                    Livewire.emit('resetEditFields');
+                    @this.call('resetEditFields');
                 });
 
-                // Initialize tooltips
-                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                document.getElementById('transferPaymentModal').addEventListener('hidden.bs.modal', function() {
+                    @this.call('resetTransferFields');
+                });
+
+                // Livewire event hooks
+                Livewire.hook('element.updating', (el, component) => {
+                    // Dispose tooltips before DOM update
+                    disposeAllTooltips();
+                });
+
+                Livewire.hook('element.updated', (el, component) => {
+                    // Reinitialize tooltips after DOM update
+                    setTimeout(() => {
+                        initializeTooltips();
+                        toggleDeliveryIdField();
+                    }, 50);
+                });
+
+                // Fallback for message.processed (in case element hooks don't work)
+                Livewire.hook('message.processed', (message, component) => {
+                    setTimeout(() => {
+                        // Clean up any orphaned tooltips first
+                        disposeAllTooltips();
+                        // Then reinitialize
+                        initializeTooltips();
+                        toggleDeliveryIdField();
+                    }, 100);
                 });
             });
         </script>

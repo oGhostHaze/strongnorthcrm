@@ -37,6 +37,25 @@ class AllPayments extends Component
     public $editRemarks = '';
     public $editReferenceNo = '';
 
+    // Transfer payment properties
+    public $transferPaymentId = null;
+    public $transferToOrderId = null;
+    public $transferToOrderNumber = '';
+    public $transferSearchResults = [];
+    public $transferOrderSearch = '';
+    public $transferRemarks = '';
+    public $selectedPaymentForTransfer = null;
+
+    // Batch transfer properties
+    public $batchTransferFromOrderId = null;
+    public $batchTransferToOrderId = null;
+    public $batchTransferToOrderNumber = '';
+    public $batchTransferSearchResults = [];
+    public $batchTransferOrderSearch = '';
+    public $batchTransferRemarks = '';
+    public $selectedOrderForBatchTransfer = null;
+    public $batchTransferPayments = [];
+
     // Related deliveries for edit modal
     public $relatedDeliveries = [];
 
@@ -48,7 +67,15 @@ class AllPayments extends Component
     public $totalUnpaidBalance;
 
     // Listeners for events
-    protected $listeners = ['refreshData', 'confirmVoid', 'resetEditFields'];
+    protected $listeners = [
+        'refreshData',
+        'confirmVoid',
+        'resetEditFields',
+        'confirmTransfer',
+        'resetTransferFields',
+        'confirmBatchTransfer',
+        'resetBatchTransferFields'
+    ];
 
     public function mount()
     {
@@ -389,6 +416,380 @@ class AllPayments extends Component
         $this->editRemarks = '';
         $this->editReferenceNo = '';
         $this->relatedDeliveries = [];
+    }
+
+    /**
+     * Initiate payment transfer
+     */
+    public function initiateTransfer($paymentId)
+    {
+        $payment = OrderPaymentHistory::with('details')->find($paymentId);
+
+        if (!$payment) {
+            $this->alert('error', 'Payment not found.');
+            return;
+        }
+
+        if ($payment->status === 'Voided') {
+            $this->alert('error', 'Cannot transfer voided payments.');
+            return;
+        }
+
+        $this->transferPaymentId = $payment->id;
+        $this->selectedPaymentForTransfer = $payment;
+        $this->transferOrderSearch = '';
+        $this->transferSearchResults = [];
+        $this->transferToOrderId = null;
+        $this->transferToOrderNumber = '';
+        $this->transferRemarks = '';
+
+        $this->dispatchBrowserEvent('show-transfer-payment-modal');
+    }
+
+    /**
+     * Search for orders to transfer payment to
+     */
+    public function updatedTransferOrderSearch()
+    {
+        if (strlen($this->transferOrderSearch) < 2) {
+            $this->transferSearchResults = [];
+            return;
+        }
+
+        $search = $this->transferOrderSearch;
+
+        $this->transferSearchResults = Order::where(function ($query) use ($search) {
+            $query->where('oa_number', 'LIKE', "%{$search}%")
+                ->orWhere('oa_client', 'LIKE', "%{$search}%")
+                ->orWhere('oa_consultant', 'LIKE', "%{$search}%")
+                ->orWhere('oa_presenter', 'LIKE', "%{$search}%");
+        })
+            ->where('oa_id', '!=', $this->selectedPaymentForTransfer->oa_id) // Exclude current order
+            ->select('oa_id', 'oa_number', 'oa_client', 'oa_date')
+            ->orderBy('oa_number', 'desc')
+            ->limit(10)
+            ->get();
+    }
+
+    /**
+     * Select an order for transfer
+     */
+    public function selectOrderForTransfer($orderId, $orderNumber)
+    {
+        $this->transferToOrderId = $orderId;
+        $this->transferToOrderNumber = $orderNumber;
+        $this->transferSearchResults = [];
+        $this->transferOrderSearch = $orderNumber;
+        $this->updatedTransferOrderSearch();
+    }
+
+    /**
+     * Show transfer confirmation
+     */
+    public function confirmTransferPayment()
+    {
+        $this->validate([
+            'transferToOrderId' => 'required|exists:orders,oa_id',
+            'transferRemarks' => 'nullable|string|max:500',
+        ]);
+
+        $fromOrder = $this->selectedPaymentForTransfer->details;
+        $toOrder = Order::find($this->transferToOrderId);
+
+        $message = "Transfer payment of ₱" . number_format($this->selectedPaymentForTransfer->amount, 2) .
+            " from Order #{$fromOrder->oa_number} ({$fromOrder->oa_client}) " .
+            "to Order #{$toOrder->oa_number} ({$toOrder->oa_client})?";
+
+        $this->alert('warning', $message, [
+            'position' => 'center',
+            'timer' => null,
+            'toast' => false,
+            'showConfirmButton' => true,
+            'confirmButtonText' => 'Transfer Payment',
+            'onConfirmed' => 'confirmTransfer',
+            'showCancelButton' => true,
+            'cancelButtonText' => 'Cancel',
+            'data' => [
+                'payment_id' => $this->transferPaymentId,
+                'to_order_id' => $this->transferToOrderId,
+                'remarks' => $this->transferRemarks,
+            ],
+        ]);
+    }
+
+    /**
+     * Execute the payment transfer
+     */
+    public function confirmTransfer($data)
+    {
+        try {
+            DB::beginTransaction();
+
+            $paymentId = $data['data']['payment_id'];
+            $toOrderId = $data['data']['to_order_id'];
+            $remarks = $data['data']['remarks'] ?? '';
+
+            $payment = OrderPaymentHistory::find($paymentId);
+            $fromOrder = Order::find($payment->oa_id);
+            $toOrder = Order::find($toOrderId);
+
+            if (!$payment || !$fromOrder || !$toOrder) {
+                throw new \Exception('Payment or order not found.');
+            }
+
+            // Store original values for audit trail
+            $originalOrderId = $payment->oa_id;
+            $originalOrderNumber = $fromOrder->oa_number;
+
+            // Update payment record
+            $payment->oa_id = $toOrderId;
+            $payment->delivery_id = null; // Clear delivery association since it's a different order
+
+            // Add transfer information to remarks
+            $transferNote = "Transferred from Order #{$originalOrderNumber} on " . now()->format('Y-m-d H:i:s');
+            if (!empty($remarks)) {
+                $transferNote .= ". Reason: {$remarks}";
+            }
+
+            $payment->remarks = $payment->remarks ? $payment->remarks . "; " . $transferNote : $transferNote;
+            $payment->save();
+
+            // Create audit log entry (you may want to create a separate audit table)
+            \Log::info('Payment Transfer', [
+                'payment_id' => $payment->id,
+                'amount' => $payment->amount,
+                'from_order_id' => $originalOrderId,
+                'from_order_number' => $originalOrderNumber,
+                'to_order_id' => $toOrderId,
+                'to_order_number' => $toOrder->oa_number,
+                'transfer_reason' => $remarks,
+                'transferred_by' => auth()->user()->id ?? null,
+                'transferred_at' => now(),
+            ]);
+
+            DB::commit();
+
+            // Hide modal and reset fields
+            $this->dispatchBrowserEvent('hide-transfer-payment-modal');
+            $this->resetTransferFields();
+
+            // Show success message
+            $this->alert('success', "Payment successfully transferred from Order #{$originalOrderNumber} to Order #{$toOrder->oa_number}.");
+
+            // Refresh data
+            $this->calculateTotals();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->alert('error', 'Transfer failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Reset transfer fields
+     */
+    public function resetTransferFields()
+    {
+        $this->transferPaymentId = null;
+        $this->transferToOrderId = null;
+        $this->transferToOrderNumber = '';
+        $this->transferSearchResults = [];
+        $this->transferOrderSearch = '';
+        $this->transferRemarks = '';
+        $this->selectedPaymentForTransfer = null;
+    }
+
+    /**
+     * Initiate batch transfer for all payments from an order
+     */
+    public function initiateBatchTransfer($fromOrderId)
+    {
+        $fromOrder = Order::with(['payments' => function ($query) {
+            $query->where('status', '!=', 'Voided');
+        }])->find($fromOrderId);
+
+        if (!$fromOrder) {
+            $this->alert('error', 'Order not found.');
+            return;
+        }
+
+        if ($fromOrder->payments->isEmpty()) {
+            $this->alert('error', 'No active payments found for this order.');
+            return;
+        }
+
+        $this->batchTransferFromOrderId = $fromOrderId;
+        $this->selectedOrderForBatchTransfer = $fromOrder;
+        $this->batchTransferPayments = $fromOrder->payments;
+        $this->batchTransferOrderSearch = '';
+        $this->batchTransferSearchResults = [];
+        $this->batchTransferToOrderId = null;
+        $this->batchTransferToOrderNumber = '';
+        $this->batchTransferRemarks = '';
+
+        $this->dispatchBrowserEvent('show-batch-transfer-modal');
+    }
+
+    /**
+     * Search for orders for batch transfer
+     */
+    public function searchOrdersForBatchTransfer()
+    {
+        if (strlen($this->batchTransferOrderSearch) < 2) {
+            $this->batchTransferSearchResults = [];
+            return;
+        }
+
+        $search = $this->batchTransferOrderSearch;
+
+        $this->batchTransferSearchResults = Order::where(function ($query) use ($search) {
+            $query->where('oa_number', 'LIKE', "%{$search}%")
+                ->orWhere('oa_client', 'LIKE', "%{$search}%")
+                ->orWhere('oa_consultant', 'LIKE', "%{$search}%")
+                ->orWhere('oa_presenter', 'LIKE', "%{$search}%");
+        })
+            ->where('oa_id', '!=', $this->batchTransferFromOrderId) // Exclude source order
+            ->select('oa_id', 'oa_number', 'oa_client', 'oa_date')
+            ->orderBy('oa_number', 'desc')
+            ->limit(10)
+            ->get();
+    }
+
+    /**
+     * Select an order for batch transfer
+     */
+    public function selectOrderForBatchTransfer($orderId, $orderNumber)
+    {
+        $this->batchTransferToOrderId = $orderId;
+        $this->batchTransferToOrderNumber = $orderNumber;
+        $this->batchTransferSearchResults = [];
+        $this->batchTransferOrderSearch = $orderNumber;
+    }
+
+    /**
+     * Show batch transfer confirmation
+     */
+    public function confirmBatchTransferPayments()
+    {
+        $this->validate([
+            'batchTransferToOrderId' => 'required|exists:orders,oa_id',
+            'batchTransferRemarks' => 'nullable|string|max:500',
+        ]);
+
+        $fromOrder = $this->selectedOrderForBatchTransfer;
+        $toOrder = Order::find($this->batchTransferToOrderId);
+        $totalAmount = $this->batchTransferPayments->sum('amount');
+        $paymentCount = $this->batchTransferPayments->count();
+
+        $message = "Transfer {$paymentCount} payments totaling ₱" . number_format($totalAmount, 2) .
+            " from Order #{$fromOrder->oa_number} ({$fromOrder->oa_client}) " .
+            "to Order #{$toOrder->oa_number} ({$toOrder->oa_client})?";
+
+        $this->alert('warning', $message, [
+            'position' => 'center',
+            'timer' => null,
+            'toast' => false,
+            'showConfirmButton' => true,
+            'confirmButtonText' => 'Transfer All Payments',
+            'onConfirmed' => 'confirmBatchTransfer',
+            'showCancelButton' => true,
+            'cancelButtonText' => 'Cancel',
+            'data' => [
+                'from_order_id' => $this->batchTransferFromOrderId,
+                'to_order_id' => $this->batchTransferToOrderId,
+                'remarks' => $this->batchTransferRemarks,
+            ],
+        ]);
+    }
+
+    /**
+     * Execute the batch payment transfer
+     */
+    public function confirmBatchTransfer($data)
+    {
+        try {
+            DB::beginTransaction();
+
+            $fromOrderId = $data['data']['from_order_id'];
+            $toOrderId = $data['data']['to_order_id'];
+            $remarks = $data['data']['remarks'] ?? '';
+
+            $fromOrder = Order::find($fromOrderId);
+            $toOrder = Order::find($toOrderId);
+            $payments = OrderPaymentHistory::where('oa_id', $fromOrderId)
+                ->where('status', '!=', 'Voided')
+                ->get();
+
+            if (!$fromOrder || !$toOrder || $payments->isEmpty()) {
+                throw new \Exception('Invalid order or no payments found.');
+            }
+
+            $transferredCount = 0;
+            $totalAmount = 0;
+
+            foreach ($payments as $payment) {
+                // Store original values for audit trail
+                $originalOrderNumber = $fromOrder->oa_number;
+
+                // Update payment record
+                $payment->oa_id = $toOrderId;
+                $payment->delivery_id = null; // Clear delivery association since it's a different order
+
+                // Add transfer information to remarks
+                $transferNote = "Batch transferred from Order #{$originalOrderNumber} on " . now()->format('Y-m-d H:i:s');
+                if (!empty($remarks)) {
+                    $transferNote .= ". Reason: {$remarks}";
+                }
+
+                $payment->remarks = $payment->remarks ? $payment->remarks . "; " . $transferNote : $transferNote;
+                $payment->save();
+
+                $transferredCount++;
+                $totalAmount += $payment->amount;
+            }
+
+            // Create audit log entry
+            \Log::info('Batch Payment Transfer', [
+                'transferred_count' => $transferredCount,
+                'total_amount' => $totalAmount,
+                'from_order_id' => $fromOrderId,
+                'from_order_number' => $fromOrder->oa_number,
+                'to_order_id' => $toOrderId,
+                'to_order_number' => $toOrder->oa_number,
+                'transfer_reason' => $remarks,
+                'transferred_by' => auth()->user()->id ?? null,
+                'transferred_at' => now(),
+            ]);
+
+            DB::commit();
+
+            // Hide modal and reset fields
+            $this->dispatchBrowserEvent('hide-batch-transfer-modal');
+            $this->resetBatchTransferFields();
+
+            // Show success message
+            $this->alert('success', "Successfully transferred {$transferredCount} payments (₱" . number_format($totalAmount, 2) . ") from Order #{$fromOrder->oa_number} to Order #{$toOrder->oa_number}.");
+
+            // Refresh data
+            $this->calculateTotals();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->alert('error', 'Batch transfer failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Reset batch transfer fields
+     */
+    public function resetBatchTransferFields()
+    {
+        $this->batchTransferFromOrderId = null;
+        $this->batchTransferToOrderId = null;
+        $this->batchTransferToOrderNumber = '';
+        $this->batchTransferSearchResults = [];
+        $this->batchTransferOrderSearch = '';
+        $this->batchTransferRemarks = '';
+        $this->selectedOrderForBatchTransfer = null;
+        $this->batchTransferPayments = [];
     }
 
     /**
