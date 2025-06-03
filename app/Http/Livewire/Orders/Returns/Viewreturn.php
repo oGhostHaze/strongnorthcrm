@@ -123,7 +123,7 @@ class Viewreturn extends Component
     {
         $this->status = $status;
 
-        if($status == 'Approved'){
+        if ($status == 'Approve') {
             $this->alert('warning', 'Approve Return Slip? Note that after confirmation, return quantity will reflect on product inventory and actions shall be disabled in this return slip.', [
                 'position' => 'center',
                 'showConfirmButton' => true,
@@ -133,7 +133,7 @@ class Viewreturn extends Component
                 'timer' => null,
                 'toast' => false
             ]);
-        }else{
+        } else {
             $this->alert('warning', 'Reject Return Slip? Note that after confirmation, actions shall be disabled in this return slip.', [
                 'position' => 'center',
                 'showConfirmButton' => true,
