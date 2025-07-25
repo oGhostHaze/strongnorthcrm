@@ -167,7 +167,8 @@
                                         <tr class='table-light'>
                                             <td class="text-end" colspan='3'><strong>TOTAL:</strong></td>
                                             <td class="text-end"><strong>&#8369;
-                                                    {{ number_format($total, 2) }}</strong></td>
+                                                    {{ number_format($subtotal = $oa->oa_price_override ? $oa->oa_price_override : $oa->items()->sum('item_total'), 2) }}</strong>
+                                            </td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -181,7 +182,9 @@
                                         <span>Time: {{ $oa->delivery_time }} </span>
                                     </div>
                                     <div class="flex">
-                                        <span>Total Amount: {{ number_format($total, 2) }} </span>
+                                        <span>Total Amount:
+                                            {{ number_format($subtotal = $oa->oa_price_override ? $oa->oa_price_override : $oa->items()->sum('item_total'), 2) }}
+                                        </span>
                                     </div>
                                     <br><br><br><br><br>
                                 </div>
