@@ -108,6 +108,7 @@
                                     <thead>
                                         <tr>
                                             <th>DATE ISSUED</th>
+                                            <th>DATE OF PDC</th>
                                             <th>CHECK NO.</th>
                                             <th>REFERENCE NO.</th>
                                             <th>AMOUNT</th>
@@ -116,6 +117,8 @@
                                     <tbody>
                                         <tr>
                                             <td>{{ date('Y-m-d', strtotime($payment->date_of_payment)) }}</td>
+                                            <td>{{ $payment->pdc_date ? date('Y-m-d', strtotime($payment->pdc_date)) : '-' }}
+                                            </td>
                                             <td>{{ $payment->mop == 'CHECK' ? $payment->reference_no : '-' }}</td>
                                             <td>{{ $payment->reference_no ?? $oa->oa_number }}</td>
                                             <td>{{ number_format($payment->amount, 2) }}</td>
@@ -126,10 +129,11 @@
                                                 <td>&nbsp;</td>
                                                 <td>&nbsp;</td>
                                                 <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
                                             </tr>
                                         @endfor
                                         <tr>
-                                            <td colspan="3" class="text-end"><strong>TOTAL AMOUNT</strong></td>
+                                            <td colspan="4" class="text-end"><strong>TOTAL AMOUNT</strong></td>
                                             <td><strong>{{ number_format($payment->amount, 2) }}</strong></td>
                                         </tr>
                                     </tbody>
