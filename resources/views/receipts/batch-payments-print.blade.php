@@ -176,7 +176,7 @@
                     <tbody>
                         @foreach ($batch['payments'] as $payment)
                             <tr>
-                                <td>{{ date('Y-m-d', strtotime($payment->date_of_payment)) }}</td>
+                                <td>{{ $payment->pdc_date ? date('Y-m-d', strtotime($payment->pdc_date)) : '-' }}</td>
                                 <td>{{ $payment->mop == 'CHECK' ? $payment->reference_no : '-' }}</td>
                                 <td>{{ $payment->reference_no ?? $order->oa_number . '-' . ($payment->receipt_sequence ?? 1) }}
                                 </td>

@@ -158,7 +158,6 @@
             <thead>
                 <tr>
                     <th>MOP</th>
-                    <th>DATE ISSUED</th>
                     <th>DATE OF PDC</th>
                     <th>CHECK/REFERENCE NO.</th>
                     <th>ORDER NO.</th>
@@ -169,7 +168,6 @@
                 @foreach ($batch_payments as $payment)
                     <tr>
                         <td>{{ $payment->mop }}</td>
-                        <td>{{ date('Y-m-d', strtotime($payment->date_of_payment)) }}</td>
                         <td>{{ $payment->pdc_date ? date('Y-m-d', strtotime($payment->pdc_date)) : '-' }}
                         </td>
                         <td>{{ $payment->reference_no ?? '-' }}</td>
@@ -185,12 +183,11 @@
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
-                        <td>&nbsp;</td>
                     </tr>
                 @endfor
 
                 <tr>
-                    <td colspan="5" style="text-align:right"><strong>TOTAL AMOUNT</strong></td>
+                    <td colspan="4" style="text-align:right"><strong>TOTAL AMOUNT</strong></td>
                     <td><strong>{{ number_format($batch_total, 2) }}</strong></td>
                 </tr>
             </tbody>
