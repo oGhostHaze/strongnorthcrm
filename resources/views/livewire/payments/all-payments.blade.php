@@ -122,12 +122,16 @@
                     <thead>
                         <tr>
                             <th>Receipt #</th>
-                            <th>Date</th>
                             <th>Order #</th>
-                            <th>Client</th>
                             <th>Delivery</th>
+                            <th>Date</th>
+                            <th>Client</th>
+                            <th>Lifechanger</th>
+                            <th>Presenter</th>
+                            <th>Teambuilder</th>
                             <th>Payment Mode</th>
                             <th>Reference #</th>
+                            <th>PDC Date</th>
                             <th>Amount</th>
                             <th>Remaining Balance</th>
                             <th>Status</th>
@@ -138,29 +142,20 @@
                         @forelse($payments as $payment)
                             <tr>
                                 <td>
-                                    @if ($payment->batch_receipt_number)
-                                        <a
-                                            href="{{ route('receipt.show.batch', ['batch_number' => $payment->batch_receipt_number]) }}">
-                                            {{ $payment->getFormattedReceiptNumber() }}
-                                        </a>
-                                        <br><small class="text-muted">Batch:
-                                            {{ $payment->batch_receipt_number }}</small>
-                                    @else
-                                        <a href="{{ route('receipt.show', ['payment_id' => $payment->id]) }}">
-                                            {{ $payment->getFormattedReceiptNumber() }}
-                                        </a>
-                                    @endif
+                                    <a class="text-nowrap"
+                                        href="{{ route('receipt.show.batch', ['batch_number' => $payment->batch_receipt_number]) }}">
+                                        {{ $payment->getFormattedReceiptNumber() }}
+                                    </a>
                                 </td>
-                                <td>{{ date('M d, Y', strtotime($payment->date_of_payment)) }}</td>
                                 <td>
-                                    <a href="{{ route('order.agreements.view', ['oa' => $payment->details]) }}">
+                                    <a class="text-nowrap"
+                                        href="{{ route('order.agreements.view', ['oa' => $payment->details]) }}">
                                         {{ $payment->details->oa_number }}
                                     </a>
                                 </td>
-                                <td>{{ $payment->details->oa_client }}</td>
                                 <td>
                                     @if ($payment->delivery)
-                                        <a
+                                        <a class="text-nowrap"
                                             href="{{ route('order.delivery.view', ['transno' => $payment->delivery->transno]) }}">
                                             {{ $payment->delivery->transno }}
                                         </a>
@@ -170,8 +165,23 @@
                                         <span class="text-muted">Advance Payment</span>
                                     @endif
                                 </td>
-                                <td>{{ $payment->mop }}</td>
-                                <td>{{ $payment->reference_no }}</td>
+                                <td class="text-nowrap">{{ date('M d, Y', strtotime($payment->date_of_payment)) }}
+                                </td>
+                                <td class="text-nowrap">{{ $payment->details->oa_client }}</td>
+                                <td class="text-nowrap">{{ $payment->details->oa_consultant }}</td>
+                                <td class="text-nowrap">{{ $payment->details->oa_presenter }}</td>
+                                <td class="text-nowrap">{{ $payment->details->oa_teambuilder }}</td>
+                                <td class="text-nowrap">{{ $payment->mop }}</td>
+                                <td class="text-nowrap">
+                                    <div class="text-nowrap">
+                                        {{ $payment->reference_no }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="text-nowrap">
+                                        {{ $payment->pdc_date }}
+                                    </div>
+                                </td>
                                 <td>₱{{ number_format($payment->amount, 2) }}</td>
                                 <td>
                                     @php

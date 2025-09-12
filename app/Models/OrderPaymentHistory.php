@@ -48,16 +48,8 @@ class OrderPaymentHistory extends Model
      */
     public function getFormattedReceiptNumber()
     {
-        if (!empty($this->receipt_number)) {
-            return $this->receipt_number;
-        }
-
-        if (!empty($this->batch_receipt_number)) {
-            return $this->batch_receipt_number . ' [Item #' . $this->receipt_sequence . ']';
-        }
-
         // Fallback for older records without receipt numbers
-        return 'PR-' . str_pad($this->id, 6, '0', STR_PAD_LEFT);
+        return 'PR-' . date('ymd', strtotime($this->created_at)) . '-' . str_pad($this->id, 6, '0', STR_PAD_LEFT);
     }
 
     /**
