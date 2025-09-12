@@ -24,7 +24,7 @@
                         <label for="filter_type">Status Filter</label>
                         <select wire:model="filter_type" id="filter_type" class="form-select">
                             <option value="all">All Items</option>
-                            <option value="pending">Pending/To Follow Items</option>
+                            <option value="pending">To Follow Items</option>
                             <option value="delivered">Delivered Items</option>
                             <option value="returned">Returned Items</option>
                         </select>
@@ -85,7 +85,7 @@
                             <th>Ordered</th>
                             <th>Released</th>
                             <th>Returned</th>
-                            <th>Pending</th>
+                            <th>To Follow</th>
                             <th>Delivery Details</th>
                             <th>Return Details</th>
                         </tr>
