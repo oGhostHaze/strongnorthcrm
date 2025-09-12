@@ -74,7 +74,7 @@
 
             <!-- Results Table -->
             <div class="table-responsive">
-                <table class="table table-sm table-hover table-bordered">
+                <table class="table table-sm table-hover table-bordered text-nowrap">
                     <thead class="bg-light">
                         <tr>
                             <th>Item Type</th>
