@@ -2,14 +2,16 @@
 
 namespace App\Http\Livewire\Orders\Returns;
 
-use App\Http\Controllers\InventoryController;
 use App\Models\Product;
 use Livewire\Component;
 use App\Models\OrderGift;
 use App\Models\OrderItem;
 use App\Models\OrderReturn;
+use App\Models\InventoryDate;
+use App\Models\InventoryItem;
 use App\Models\OrderReturnInfo;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\InventoryController;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Viewreturn extends Component
@@ -176,6 +178,14 @@ class Viewreturn extends Component
             $update_item->returned += $return->qty;
             $update_item->released -= $return->qty;
             $update_item->item_total = $update_item->released * $update_item->item_price;
+
+            $inventory_date = InventoryDate::firstOrCreate(['inv_date' => date('Y-m-d')]);
+            $inventory_item = InventoryItem::firstOrCreate([
+                'inventory_date_id' => $inventory_date->id,
+                'product_id' => $product->product_id
+            ]);
+            $inventory_item->total_returned += $product->item_qty;
+            $inventory_item->save();
 
             $product->save();
             $update_item->save();
