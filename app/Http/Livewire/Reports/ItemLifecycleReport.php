@@ -38,35 +38,24 @@ class ItemLifecycleReport extends Component
         $this->resetPage();
     }
 
-
-
     public function render()
     {
         $startDate = Carbon::parse($this->start_date)->startOfDay();
         $endDate = Carbon::parse($this->end_date)->endOfDay();
 
-        // Get base query for order items - FIXED to use DRS date consistently
+        // Get base query for order items
         $items = OrderItem::with([
             'item',
             'details',
-            'details.drs' => function ($query) use ($startDate, $endDate) {
-                // Only load DRS records within the date range
-                $query->whereBetween('date', [$startDate, $endDate]);
-
-                if (!empty($this->client_name)) {
-                    $query->where('client', 'like', '%' . $this->client_name . '%');
-                }
-            },
+            'details.drs',
             'details.returns'
         ])
             ->whereHas('details', function ($query) use ($startDate, $endDate) {
-                $query->whereHas('drs', function ($query) use ($startDate, $endDate) {
-                    $query->whereBetween('date', [$startDate, $endDate]);
+                $query->whereBetween('oa_date', [$startDate, $endDate]);
 
-                    if (!empty($this->client_name)) {
-                        $query->where('client', 'like', '%' . $this->client_name . '%');
-                    }
-                });
+                if (!empty($this->client_name)) {
+                    $query->where('oa_client', 'like', '%' . $this->client_name . '%');
+                }
             });
 
         // Apply product filter if set
@@ -90,28 +79,19 @@ class ItemLifecycleReport extends Component
             $items->whereRaw('(item_qty - (released + returned)) > 0');
         }
 
-        // Get gifts with similar logic - FIXED to use DRS date consistently
+        // Get gifts with similar logic
         $gifts = OrderGift::with([
             'gift',
             'details',
-            'details.drs' => function ($query) use ($startDate, $endDate) {
-                // Only load DRS records within the date range
-                $query->whereBetween('date', [$startDate, $endDate]);
-
-                if (!empty($this->client_name)) {
-                    $query->where('client', 'like', '%' . $this->client_name . '%');
-                }
-            },
+            'details.drs',
             'details.returns'
         ])
             ->whereHas('details', function ($query) use ($startDate, $endDate) {
-                $query->whereHas('drs', function ($query) use ($startDate, $endDate) {
-                    $query->whereBetween('date', [$startDate, $endDate]);
+                $query->whereBetween('oa_date', [$startDate, $endDate]);
 
-                    if (!empty($this->client_name)) {
-                        $query->where('client', 'like', '%' . $this->client_name . '%');
-                    }
-                });
+                if (!empty($this->client_name)) {
+                    $query->where('oa_client', 'like', '%' . $this->client_name . '%');
+                }
             });
 
         // Apply product filter if set
@@ -136,16 +116,12 @@ class ItemLifecycleReport extends Component
         }
 
         // Get each item's detailed lifecycle information
-        $itemResults = $items->get()->filter(function ($item) {
-            // Only include items that actually have DRS records after filtering
-            return $item->details && $item->details->drs && $item->details->drs->count() > 0;
-        })->map(function ($item) use ($startDate, $endDate) {
+        $itemResults = $items->get()->map(function ($item) {
             $deliveryInfo = [];
             $returnInfo = [];
 
-            // Find all deliveries that contain this item - ONLY within date range
+            // Find all deliveries that contain this item
             foreach ($item->details->drs as $dr) {
-                // Since we already filtered DRS in the with() clause, we only get DRS within date range
                 $deliveryItems = DeliveryItem::where('transno', $dr->transno)
                     ->where('product_id', $item->product_id)
                     ->get();
@@ -162,19 +138,17 @@ class ItemLifecycleReport extends Component
                 }
             }
 
-            // Find all returns for this item - OPTIONALLY filter returns by date too
+            // Find all returns for this item
             $returns = OrderReturn::where('oa_id', $item->oa_id)
                 ->where('product_id', $item->product_id)
                 ->where('item_type', 'Item')
-                // Uncomment the next line if you also want to filter returns by date
-                // ->whereBetween('date_returned', [$startDate, $endDate])
                 ->get();
 
             foreach ($returns as $return) {
                 $returnSlipInfo = OrderReturnInfo::find($return->return_no);
                 if ($returnSlipInfo) {
                     $returnInfo[] = [
-                        'return_id' => $return->return_no,
+                        'return_id' => $return->return_no, // Add the ID for the link
                         'return_no' => 'RSN-' . $return->return_no,
                         'date' => $return->date_returned,
                         'qty' => $return->qty,
@@ -191,10 +165,10 @@ class ItemLifecycleReport extends Component
                 'oa_number' => $item->details->oa_number,
                 'oa_date' => $item->details->oa_date,
                 'client' => $item->details->oa_client,
-                'ordered_qty' => $item->item_qty + $item->released + $item->returned,
+                'ordered_qty' => $item->item_qty + $item->released + $item->returned, // Include original qty plus movement
                 'released_qty' => $item->released,
                 'returned_qty' => $item->returned,
-                'pending_qty' => $item->item_qty,
+                'pending_qty' => $item->item_qty, // Original item quantity from the order
                 'deliveries' => $deliveryInfo,
                 'returns' => $returnInfo,
                 'price' => $item->item_price,
@@ -203,16 +177,12 @@ class ItemLifecycleReport extends Component
         });
 
         // Get gift lifecycle information with similar logic
-        $giftResults = $gifts->get()->filter(function ($gift) {
-            // Only include gifts that actually have DRS records after filtering
-            return $gift->details && $gift->details->drs && $gift->details->drs->count() > 0;
-        })->map(function ($gift) use ($startDate, $endDate) {
+        $giftResults = $gifts->get()->map(function ($gift) {
             $deliveryInfo = [];
             $returnInfo = [];
 
-            // Find all deliveries for this gift - ONLY within date range
+            // Find all deliveries for this gift
             foreach ($gift->details->drs as $dr) {
-                // Since we already filtered DRS in the with() clause, we only get DRS within date range
                 $deliveryGifts = DeliveryGift::where('transno', $dr->transno)
                     ->where('product_id', $gift->product_id)
                     ->get();
@@ -229,19 +199,17 @@ class ItemLifecycleReport extends Component
                 }
             }
 
-            // Find all returns - OPTIONALLY filter returns by date too
+            // Find all returns
             $returns = OrderReturn::where('oa_id', $gift->oa_id)
                 ->where('product_id', $gift->product_id)
                 ->where('item_type', 'Gift')
-                // Uncomment the next line if you also want to filter returns by date
-                // ->whereBetween('date_returned', [$startDate, $endDate])
                 ->get();
 
             foreach ($returns as $return) {
                 $returnSlipInfo = OrderReturnInfo::find($return->return_no);
                 if ($returnSlipInfo) {
                     $returnInfo[] = [
-                        'return_id' => $return->return_no,
+                        'return_id' => $return->return_no, // Add the ID for the link
                         'return_no' => 'RSN-' . $return->return_no,
                         'date' => $return->date_returned,
                         'qty' => $return->qty,
@@ -258,10 +226,10 @@ class ItemLifecycleReport extends Component
                 'oa_number' => $gift->details->oa_number,
                 'oa_date' => $gift->details->oa_date,
                 'client' => $gift->details->oa_client,
-                'ordered_qty' => $gift->item_qty + $gift->released + $gift->returned,
+                'ordered_qty' => $gift->item_qty + $gift->released + $gift->returned, // Include original qty plus movement
                 'released_qty' => $gift->released,
                 'returned_qty' => $gift->returned,
-                'pending_qty' => $gift->item_qty,
+                'pending_qty' => $gift->item_qty, // Original item quantity from the order
                 'deliveries' => $deliveryInfo,
                 'returns' => $returnInfo,
                 'price' => $gift->item_price,
@@ -272,13 +240,8 @@ class ItemLifecycleReport extends Component
         // Combine both item and gift results
         $combinedResults = $itemResults->concat($giftResults);
 
-        // Apply sorting - you might want to sort by DRS date instead of OA date
+        // Apply sorting
         $combinedResults = $combinedResults->sortByDesc(function ($item) {
-            // Sort by the latest delivery date if deliveries exist, otherwise by OA date
-            if (!empty($item['deliveries'])) {
-                $latestDelivery = collect($item['deliveries'])->sortByDesc('date')->first();
-                return Carbon::parse($latestDelivery['date'])->timestamp;
-            }
             return Carbon::parse($item['oa_date'])->timestamp;
         });
 
@@ -290,7 +253,6 @@ class ItemLifecycleReport extends Component
             'products' => $products,
         ]);
     }
-
 
     public function exportCsv()
     {
