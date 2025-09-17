@@ -50,11 +50,11 @@ class ItemLifecycleReport extends Component
             'details.drs',
             'details.returns'
         ])
-            ->whereHas('details', function ($query) use ($startDate, $endDate) {
-                $query->whereBetween('oa_date', [$startDate, $endDate]);
+            ->whereHas('details.drs', function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('date', [$startDate, $endDate]);
 
                 if (!empty($this->client_name)) {
-                    $query->where('oa_client', 'like', '%' . $this->client_name . '%');
+                    $query->where('client', 'like', '%' . $this->client_name . '%');
                 }
             });
 
