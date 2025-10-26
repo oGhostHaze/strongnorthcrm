@@ -124,7 +124,6 @@ class Viewreturn extends Component
     public function confirm_approval($status)
     {
         $this->status = $status;
-
         if ($status == 'Approve') {
             $this->alert('warning', 'Approve Return Slip? Note that after confirmation, return quantity will reflect on product inventory and actions shall be disabled in this return slip.', [
                 'position' => 'center',
@@ -184,7 +183,8 @@ class Viewreturn extends Component
                 'inventory_date_id' => $inventory_date->id,
                 'product_id' => $product->product_id
             ]);
-            $inventory_item->total_returned += $product->item_qty;
+            $inventory_item->total_returned += $return->qty;
+
             $inventory_item->save();
 
             $product->save();
