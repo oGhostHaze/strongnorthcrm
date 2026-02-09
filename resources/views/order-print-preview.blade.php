@@ -92,11 +92,12 @@
                                         @forelse ($oa->items()->get() as $order)
                                             @php
                                                 $row_count--;
+                                                $print_desc = $order->custom_description ?? $order->product->product_description;
                                             @endphp
                                             <tr class="border border-black {!! $order->remarks == 'Composed of:' ? 'active"' : '' !!}">
                                                 <td>{!! $order->product->tblset_id
-                                                    ? '<span class="font-bold">' . $order->product->product_description . '</span> Composed of:'
-                                                    : $order->product->product_description !!}</td>
+                                                    ? '<span class="font-bold">' . e($print_desc) . '</span> Composed of:'
+                                                    : e($print_desc) !!}</td>
                                                 <td class="text-end">{{ number_format($order->item_price, 2) }}
                                                 </td>
                                                 <td class="text-end">

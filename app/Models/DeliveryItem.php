@@ -13,6 +13,7 @@ class DeliveryItem extends Model
     protected $fillable = [
         'transno',
         'product_id',
+        'custom_description',
         'item_price',
         'item_qty',
         'item_total',

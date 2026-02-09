@@ -87,16 +87,32 @@
                                         @forelse ($delivery->items()->get() as $order)
                                             @php
                                                 $row_count--;
+                                                $display_desc = $order->custom_description ?? $order->item->product_description;
                                             @endphp
                                             <tr {!! $order->tblset_id ? 'class="table-light"' : '' !!}
-                                                @if (!$delivery->print_count) @if ($order->status == 'To Follow') onClick="release('{{ $order->item_qty }}', '{{ $order->item->product_description }}', '{{ $order->item_id }}', 1)" @endif
-                                                @if ($order->status == 'For Releasing') onClick="to_follow('{{ $order->item_qty }}', '{{ $order->item->product_description }}', '{{ $order->item_id }}', 1)" @endif
+                                                @if (!$delivery->print_count) @if ($order->status == 'To Follow') onClick="release('{{ $order->item_qty }}', '{{ addslashes($display_desc) }}', '{{ $order->item_id }}', 1)" @endif
+                                                @if ($order->status == 'For Releasing') onClick="to_follow('{{ $order->item_qty }}', '{{ addslashes($display_desc) }}', '{{ $order->item_id }}', 1)" @endif
                                                 style="cursor: pointer" @endif>
 
                                                 <td class="text-center">{{ $order->item_qty }}</td>
-                                                <td>{!! $order->item->tblset_id
-                                                    ? '<span class="fw-bold">' . $order->item->product_description . '</span> ' . 'Composed of:'
-                                                    : $order->item->product_description . '  - <span class="text-danger text-small">' . $order->status . '</span>' !!}</td>
+                                                <td>
+                                                    @if ($editing_description_id == $order->item_id)
+                                                        <div class="d-flex align-items-center gap-1" onclick="event.stopPropagation()">
+                                                            <input type="text" class="form-control form-control-sm"
+                                                                wire:model.defer="editing_custom_description"
+                                                                placeholder="{{ $order->item->product_description }}">
+                                                            <button class="btn btn-sm btn-success" wire:click="save_custom_description()"><i class="fas fa-check"></i></button>
+                                                            <button class="btn btn-sm btn-secondary" wire:click="cancel_edit_description()"><i class="fas fa-times"></i></button>
+                                                        </div>
+                                                    @else
+                                                        {!! $order->item->tblset_id
+                                                            ? '<span class="fw-bold">' . e($display_desc) . '</span> ' . 'Composed of:'
+                                                            : e($display_desc) . '  - <span class="text-danger text-small">' . $order->status . '</span>' !!}
+                                                        @if (!$delivery->print_count)
+                                                            <a href="#" class="ms-1 text-muted small" wire:click.prevent="edit_description('{{ $order->item_id }}')" onclick="event.stopPropagation()" title="Edit description"><i class="fas fa-pen"></i></a>
+                                                        @endif
+                                                    @endif
+                                                </td>
                                                 <td class="text-end">{{ number_format($order->item_price, 2) }}</td>
                                                 <td class="text-end">{{ number_format($order->item_total, 2) }}</td>
                                             </tr>
@@ -297,11 +313,12 @@
                                                 </thead>
                                                 <tbody>
                                                     @forelse ($delivery->items()->get() as $order)
+                                                        @php $print_desc = $order->custom_description ?? $order->item->product_description; @endphp
                                                         <tr>
                                                             <td class="text-center">{{ $order->item_qty }}</td>
                                                             <td>{!! $order->item->tblset_id
-                                                                ? '<span class="fw-bold">' . $order->item->product_description . '</span> ' . 'Composed of:'
-                                                                : $order->item->product_description . '  - <span class="text-danger text-small">' . $order->status . '</span>' !!}</td>
+                                                                ? '<span class="fw-bold">' . e($print_desc) . '</span> ' . 'Composed of:'
+                                                                : e($print_desc) . '  - <span class="text-danger text-small">' . $order->status . '</span>' !!}</td>
                                                             <td class="text-end">{{ number_format($order->item_price, 2) }}
                                                             </td>
                                                             <td class="text-end">{{ number_format($order->item_total, 2) }}
@@ -494,11 +511,12 @@
                                                 </thead>
                                                 <tbody>
                                                     @forelse ($delivery->items()->get() as $order)
+                                                        @php $print_desc = $order->custom_description ?? $order->item->product_description; @endphp
                                                         <tr>
                                                             <td class="text-center">{{ $order->item_qty }}</td>
                                                             <td>{!! $order->item->tblset_id
-                                                                ? '<span class="fw-bold">' . $order->item->product_description . '</span> ' . 'Composed of:'
-                                                                : $order->item->product_description . '  - <span class="text-danger text-small">' . $order->status . '</span>' !!}</td>
+                                                                ? '<span class="fw-bold">' . e($print_desc) . '</span> ' . 'Composed of:'
+                                                                : e($print_desc) . '  - <span class="text-danger text-small">' . $order->status . '</span>' !!}</td>
                                                             <td class="text-end">{{ number_format($order->item_price, 2) }}
                                                             </td>
                                                             <td class="text-end">{{ number_format($order->item_total, 2) }}
@@ -691,11 +709,12 @@
                                                 </thead>
                                                 <tbody>
                                                     @forelse ($delivery->items()->get() as $order)
+                                                        @php $print_desc = $order->custom_description ?? $order->item->product_description; @endphp
                                                         <tr>
                                                             <td class="text-center">{{ $order->item_qty }}</td>
                                                             <td>{!! $order->item->tblset_id
-                                                                ? '<span class="fw-bold">' . $order->item->product_description . '</span> ' . 'Composed of:'
-                                                                : $order->item->product_description . '  - <span class="text-danger text-small">' . $order->status . '</span>' !!}</td>
+                                                                ? '<span class="fw-bold">' . e($print_desc) . '</span> ' . 'Composed of:'
+                                                                : e($print_desc) . '  - <span class="text-danger text-small">' . $order->status . '</span>' !!}</td>
                                                             <td class="text-end">{{ number_format($order->item_price, 2) }}
                                                             </td>
                                                             <td class="text-end">{{ number_format($order->item_total, 2) }}

@@ -95,9 +95,26 @@
                             <tbody>
                                 @forelse ($oa->items()->get() as $order)
                                     <tr {!! $order->tblset_id ? 'class="table-light"' : '' !!}>
-                                        <td>{!! $order->item->tblset_id
-                                            ? '<span class="fw-bold">' . $order->item->product_description . '</span> Composed of:'
-                                            : $order->item->product_description !!}</td>
+                                        <td>
+                                            @if ($editing_description_id == $order->item_id)
+                                                <div class="d-flex align-items-center gap-1">
+                                                    <input type="text" class="form-control form-control-sm"
+                                                        wire:model.defer="editing_custom_description"
+                                                        placeholder="{{ $order->item->product_description }}">
+                                                    <button class="btn btn-sm btn-success" wire:click="save_custom_description()"><i class="fas fa-check"></i></button>
+                                                    <button class="btn btn-sm btn-secondary" wire:click="cancel_edit_description()"><i class="fas fa-times"></i></button>
+                                                </div>
+                                            @else
+                                                {!! $order->item->tblset_id
+                                                    ? '<span class="fw-bold">' . ($order->custom_description ?? $order->item->product_description) . '</span> Composed of:'
+                                                    : ($order->custom_description ?? $order->item->product_description) !!}
+                                                @can('manage-orders')
+                                                    @if (!$oa->drs()->count())
+                                                        <a href="#" class="ms-1 text-muted small" wire:click.prevent="edit_description('{{ $order->item_id }}')" title="Edit description"><i class="fas fa-pen"></i></a>
+                                                    @endif
+                                                @endcan
+                                            @endif
+                                        </td>
                                         <td class="text-end">{{ number_format($order->item_price, 2) }}</td>
                                         <td class="text-end">{{ $order->item_qty }}</td>
                                         <td class="text-end">{{ $order->released }}</td>
@@ -107,7 +124,7 @@
                                             @if (!$oa->drs()->count())
                                                 <td width="5%">
                                                     <a href="#" class="btn btn-sm btn-danger"
-                                                        onclick="delete_item('{{ $order->item_id }}', '{{ $order->item->product_description }}')">Remove</a>
+                                                        onclick="delete_item('{{ $order->item_id }}', '{{ $order->custom_description ?? $order->item->product_description }}')">Remove</a>
                                                 </td>
                                             @endif
                                         @endcan
