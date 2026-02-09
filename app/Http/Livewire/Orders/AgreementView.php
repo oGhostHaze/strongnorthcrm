@@ -39,6 +39,8 @@ class AgreementView extends Component
 
     public $rsn_dr;
     public $selected_delivery_id = null;
+    public $editing_description_id = null;
+    public $editing_custom_description = '';
 
     public function render()
     {
@@ -146,6 +148,34 @@ class AgreementView extends Component
         $this->gift_id = null;
         $this->gift_qty = null;
         $this->gift_type = null;
+    }
+
+    public function edit_description($item_id)
+    {
+        $item = OrderItem::find($item_id);
+        if ($item) {
+            $this->editing_description_id = $item_id;
+            $this->editing_custom_description = $item->custom_description ?? '';
+        }
+    }
+
+    public function save_custom_description()
+    {
+        $item = OrderItem::find($this->editing_description_id);
+        if ($item) {
+            $description = trim($this->editing_custom_description);
+            $item->custom_description = $description !== '' ? $description : null;
+            $item->save();
+            $this->dispatchBrowserEvent('success', 'Custom description updated.');
+        }
+        $this->editing_description_id = null;
+        $this->editing_custom_description = '';
+    }
+
+    public function cancel_edit_description()
+    {
+        $this->editing_description_id = null;
+        $this->editing_custom_description = '';
     }
 
     public function add_payment()
@@ -391,6 +421,7 @@ class AgreementView extends Component
                 DeliveryItem::create([
                     'transno' => $transno,
                     'product_id' => $oa_item->product_id,
+                    'custom_description' => $oa_item->custom_description,
                     'item_price' => $oa_item->item_price,
                     'item_qty' => $oa_item->item_qty,
                     'item_total' => $existing_dr ? 0 : $item_total,

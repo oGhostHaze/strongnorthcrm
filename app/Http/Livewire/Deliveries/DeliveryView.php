@@ -17,6 +17,8 @@ class DeliveryView extends Component
 {
     public $delivery, $price_override, $price_difference;
     public $print_val = false;
+    public $editing_description_id = null;
+    public $editing_custom_description = '';
     protected $listeners = ['print_this', 'release_item', 'to_follow_item', 'release_gift', 'to_follow_gift'];
 
     public function render()
@@ -108,6 +110,34 @@ class DeliveryView extends Component
         $gift->status = 'To Follow';
         $gift->save();
         $this->dispatchBrowserEvent('success', 'Gift marked as to follow');
+    }
+
+    public function edit_description($item_id)
+    {
+        $item = DeliveryItem::find($item_id);
+        if ($item) {
+            $this->editing_description_id = $item_id;
+            $this->editing_custom_description = $item->custom_description ?? '';
+        }
+    }
+
+    public function save_custom_description()
+    {
+        $item = DeliveryItem::find($this->editing_description_id);
+        if ($item) {
+            $description = trim($this->editing_custom_description);
+            $item->custom_description = $description !== '' ? $description : null;
+            $item->save();
+            $this->dispatchBrowserEvent('success', 'Custom description updated.');
+        }
+        $this->editing_description_id = null;
+        $this->editing_custom_description = '';
+    }
+
+    public function cancel_edit_description()
+    {
+        $this->editing_description_id = null;
+        $this->editing_custom_description = '';
     }
 
     public function finalize_dr()
